@@ -1,0 +1,9 @@
+Begin and end frame numbers of master video shots - 
+automatic shot boundary detection by Georges Quénot, LIG-CNRS
+0 3
+4 6
+7 15
+16 64
+65 9688
+9689 10308
+10309 12341
