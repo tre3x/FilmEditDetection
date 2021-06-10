@@ -1,3 +1,5 @@
 **/__pycache__
 data/synthetic_data/shots
 data/synthetic_data/videos
+data/synthetic_data/results
+data/synthetic_data/finaldata
