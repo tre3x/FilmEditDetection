@@ -3,16 +3,18 @@ import numpy as np
 import os
 
 class shotgenerator():
-    def __init__(self, vidname, fps, threshold_frame = 80):
+    def __init__(self, vidname, msbpath, fps, threshold_frame = 80):
         '''
         This class generates and stores individual shots of a video given the following 
         inputs : 
-        INPUT : vidname, fps, thereshold_frame
+        INPUT : vidname, msbpath, fps, thereshold_frame
         vidname - Video filename according to the TRECVID IACC.3 dataset
+        msbpath - Directory path of msb files containing shot boundary data
         fps : Set the Frames per Second of the generated shot
         threshold_frame - Set the threshold value for shot generation
         '''
         self.here = os.path.dirname(os.path.abspath(__file__))
+        self.msbpath = msbpath
         self.check_dir()
         self.outpath = os.path.join(self.here, "shots", vidname.split('._-o-_.')[1].rsplit('.', 1)[0])
         self.fps = fps
@@ -67,13 +69,13 @@ class shotgenerator():
         Check if the length of individual shots are greater than a threshold value.
         If yes, runs the shotmaker function to generate and store shots. 
         '''
-        timestamps = os.path.join(self.here, 'msb', vidname)
+        timestamps = os.path.join(self.msbpath, vidname)
         videopath = os.path.join(self.here, "videos", vidname.split('._-o-_.')[1])
 
         times = self.get_boundaries(timestamps)
         count = 1
+        print("Generating Shots...")
         for boundary in times:
-            print("######GENERATING SHOT " + str(count) + "######")
             start = int(boundary.split(" ")[0])
             end = int(boundary.split(" ")[1][:-1])
             if (end - start) > self.threshold_frame:
@@ -81,4 +83,4 @@ class shotgenerator():
                 count+=1
 
 if __name__ == '__main__':
-    shotgenerator("Political_videos-GeorgeWBush20020321_6_312._-o-_.Political_videos-GeorgeWBush20020321_6_312_512kb.mp4", 24)
+    shotgenerator("Political_videos-GeorgeWBush20020321_6_312._-o-_.Political_videos-GeorgeWBush20020321_6_312_512kb.mp4", "/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb", 24)

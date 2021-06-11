@@ -11,16 +11,18 @@ create shots.
 
 
 class downloader():
-    def __init__(self, filepath, num):
+    def __init__(self, xmlpath, msbpath, num):
         '''
         This class downloads 'num' number of random videos and call the shotmaker
         module for generatig individual shots.
         INPUT : filepath, num
-        filepath - path of TRECVID IACC.3 dataset xml file
+        xmlpathpath - path of TRECVID IACC.3 dataset xml file
+        msbpath - directory path of msb files containing shot boundary data
         num - number of random videos to be downloaded and broken into shots
         '''
-        tree = ET.parse(filepath)
+        tree = ET.parse(xmlpath)
         self.here = os.path.dirname(os.path.abspath(__file__))
+        self.msbpath = msbpath
         self.root = tree.getroot()
         self.create_dir()
         self.video_selector(num)
@@ -46,7 +48,7 @@ class downloader():
         if not os.path.exists(videopath):
             try:
                 urllib.request.urlretrieve(link, videopath) 
-                shotgenerator(filename, 24)
+                shotgenerator(filename, self.msbpath, 24)
             except:
                 pass
 
@@ -57,13 +59,11 @@ class downloader():
         index = random.sample(range(0, len(self.root)-1), num)
         count = 1
         for ind in index:
-            print("######DOWNLOADING VIDEO " + str(count) + "######")
+            print("###DOWNLOADING VIDEO " + str(count) + "###")
             print("This may take a while.")
             self.video_downloader(ind)
             count += 1
 
 if __name__ == '__main__':
-    downloader('iacc.3.collection.xml', 2)
+    downloader('iacc.3.collection.xml',  "/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb", 2)
     
-
-entrevista_ulises__IABMexico_512kb
