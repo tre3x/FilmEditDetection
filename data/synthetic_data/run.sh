@@ -1,8 +1,8 @@
 #!/bin/bash
 
 XML_PATH='iacc.3.collection.xml'
-MSB_PATH='/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb'
-declare -i VID_DOWNLOAD=2
+MSB_PATH='msb'
+declare -i VID_DOWNLOAD=1
 declare -i REQ_FPS=24
 declare -i NUM_HARDCUTS=10
 declare -i NUM_SOFTCUTS=10
