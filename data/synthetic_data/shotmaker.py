@@ -73,7 +73,7 @@ class shotgenerator():
 
         times = self.get_boundaries(timestamps)
         count = 1
-        print("Generating Shots...")
+        print("Generating Shots of Video-{} ...".format(vidname.split('._-o-_.')[1].rsplit('.', 1)[0]))
         for boundary in times:
             start = int(boundary.split(" ")[0])
             end = int(boundary.split(" ")[1][:-1])
