@@ -34,6 +34,20 @@ class softcutdatamaker():
         softcutpath = os.path.join(finaldatapath, "softcut")
         if not os.path.isdir(softcutpath):
             os.mkdir(softcutpath)
+            
+    def get_referenceframe(self, vidlength):
+        '''
+        Get reference frame about which trimming of the parent video is going to take place,
+        to produce shorter video snippet with no cut in between.
+        '''
+        count = 0
+        while True:
+            frame = random.randint(self.initframe, self.finframe)
+            if (vidlength - frame > self.framenum//2) and frame > self.framenum//2:
+                return frame
+            if count > 15:
+                break
+            count = count + 1
         
     def trim_video(self):
         '''
@@ -41,21 +55,25 @@ class softcutdatamaker():
         of required frames, containg a soft cut in between.
         '''
         cap = cv2.VideoCapture(self.path)
-        outpath = os.path.join(self.here, "finaldata", "softcut", self.path.split("/")[-1])
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (width, height))
+        vidlength = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        ref_frame = self.get_referenceframe(vidlength)
+        if ref_frame is not None:
+            outpath = os.path.join(self.here, "finaldata", "softcut", self.path.split("/")[-1])
+            
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (width, height))
 
-        referenceframe = random.randint(self.initframe, self.finframe)
-        startframe = referenceframe - self.framenum//2
-        framecount = startframe
 
-        while framecount <= startframe+self.framenum:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, int(framecount))
-            res, frame = cap.read()
-            out.write(frame)
-            framecount = framecount + 1
-        out.release()
+            startframe = ref_frame - self.framenum//2
+            framecount = startframe
+
+            while framecount < startframe+self.framenum:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, int(framecount))
+                res, frame = cap.read()
+                out.write(frame)
+                framecount = framecount + 1
+            out.release()
 
     def run(self):
         self.trim_video()
@@ -117,7 +135,7 @@ class nocutdatamaker():
 
         referenceframe = self.get_referenceframe()
         framecount = referenceframe
-        while framecount <= referenceframe+self.framenum:
+        while framecount < referenceframe+self.framenum:
             self.cap.set(cv2.CAP_PROP_POS_FRAMES, int(framecount))
             res, frame = self.cap.read()
             self.out.write(frame)
@@ -162,7 +180,10 @@ class reader():
         '''
         with open(self.csvpath, 'r') as file:
             reader = csv.reader(file)
-            print("Generating cut snippets...")
+            if self.nocut:
+                print("Generating no-cut snippets...")
+            else:
+                print("Generating soft-cut snippets...")
             for row in reader:
                 timepairs = int((len(row) - 1) / 2)  #For Multiple Cuts
                 init = 1

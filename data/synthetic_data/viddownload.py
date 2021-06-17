@@ -11,7 +11,7 @@ create shots.
 
 
 class downloader():
-    def __init__(self, xmlpath, msbpath, num):
+    def __init__(self, xmlpath, num):
         '''
         This class downloads 'num' number of random videos and call the shotmaker
         module for generatig individual shots.
@@ -22,7 +22,6 @@ class downloader():
         '''
         tree = ET.parse(xmlpath)
         self.here = os.path.dirname(os.path.abspath(__file__))
-        self.msbpath = msbpath
         self.root = tree.getroot()
         self.create_dir()
         self.video_selector(num)
@@ -44,11 +43,10 @@ class downloader():
         filename = self.root[index][1].text
         filesource = self.root[index][3].text
         link = filesource + "/" + filename.split('._-o-_.')[1]
-        videopath = os.path.join(self.here, "videos", filename.split('._-o-_.')[1])
+        videopath = os.path.join(self.here, "videos", filename)
         if not os.path.exists(videopath):
             try:
                 urllib.request.urlretrieve(link, videopath) 
-                shotgenerator(filename, self.msbpath, 24)
             except:
                 pass
 
@@ -65,5 +63,5 @@ class downloader():
             count += 1
 
 if __name__ == '__main__':
-    downloader('iacc.3.collection.xml',  "/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb", 2)
+    downloader('iacc.3.collection.xml', 2)
     
