@@ -146,10 +146,8 @@ def findcandidate(fr, n, cnnmodel, thres, cap):
                 mid = (a+b)//2
                 d13 = run_hardcutmetric(a, b, cnnmodel, cap)
                 if(b == a+1):
-                    print(a, "hard-cut")
                     return [a, d13, 1]
                 if(d13 > thres) and (flag == 1):
-                    print(a, "soft-cut-candidate")
                     return [a, d13, 0]
                 else:
                     flag = 1
@@ -161,7 +159,6 @@ def findcandidate(fr, n, cnnmodel, thres, cap):
                         b =  mid
     except:
         return 0
-
 
 def run(path, cp, thres, group_number):
     '''
@@ -178,6 +175,13 @@ def run(path, cp, thres, group_number):
     hardcut:frame index of the hardcut frames
     candidate:frame index of transition candidate frame
     '''
+    gpus = tf.config.list_physical_devices('GPU')
+    try:
+       for gpu in gpus:
+           tf.config.experimental.set_memory_growth(gpu, True)
+    except:
+       pass
+
     cap = get_vidobject(path)
     n = get_fps(cap)
     frame_jump_unit = get_framejumpunit(cap, cp)
@@ -186,13 +190,12 @@ def run(path, cp, thres, group_number):
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
-
     for fr in range(init_frame, init_frame+frame_jump_unit, n):
         result = findcandidate(fr, n, cnnmodel, thres, cap)
         if not result:
-            pass
+             pass
         else:
-            if result:
+            if result[2]:
                 hardcuts.append(result[0])
             else:
                 candidates.append(result[0])
@@ -217,7 +220,6 @@ def multi_run(path, cp, thres):
     p.close()
     return rt
 
-
 def get_result(path, child_process, threshold):
     '''
     Driver function for calling the hard cut detector module. Calls multi run module to
@@ -231,19 +233,19 @@ def get_result(path, child_process, threshold):
     candidate:frame index of transition candidate frame to be passed to next module
     '''
     results = multi_run(path, child_process, threshold)
-    
     hardcut = []
     candidate = []
     for result in results:
-        hardcut.append(result[1])
-        candidate.append(result[0])
+        for elem in result[0]:
+            candidate.append(elem)
+        for elem in result[1]:
+            hardcut.append(elem)
     return (hardcut, candidate)
-    
 
 if __name__=='__main__':
-    child_process = 2 #Number of child process
+    child_process = 4 #Number of child process
     threshold = 0.75
-    path = '/home/tre3x/Python/Red_Hen/DatasetGenerator/MEPdata/A Strange Meeting.mp4'
+    path = "a_babys_shoe.mp4"
 
     start = time.time()
     r = get_result(path, child_process, threshold)
