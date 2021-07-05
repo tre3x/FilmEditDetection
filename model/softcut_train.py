@@ -18,7 +18,7 @@ class softcut():
     batch_size-batch size for training the model   OUTPUT-_mod
     _mod-trained model for prediction
 
-    To train the model - softcut(train_path, test_path, SDDCNN, DDCNN, F, inputdim).train(batch_size)
+    To train the model - softcut(train_path, test_path, SDDCNN, DDCNN, F, inputdim).train(batch_size, epoch, steps, step_val, save, path)
     '''
     def __init__(self, train_path, test_path, SDDCNN, DDCNN, F, inputdim):
         self.train_path = train_path
@@ -114,6 +114,10 @@ class softcut():
         _mod.compile('Adam', loss = tf.keras.losses.categorical_crossentropy, metrics=['accuracy'])
         _mod.fit(self.video_generator(batch_size = batch_size, train=True), epochs = epoch, steps_per_epoch = steps, validation_data = self.video_generator(batch_size = batch_size, train=False), validation_steps = step_val)
         if save:
+          if not os.path.isdir(path):
+            os.mkdir(path)
+            _mod.save(path)
+          else:
             _mod.save(path)
         return _mod
 
