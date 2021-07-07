@@ -170,14 +170,16 @@ class runner():
         '''
         self.getshots()
 
-        print("Generating hard cuts...")
+        if(self.numhard>0):
+             print("Generating hard cuts...") 
         for i in range(self.numhard):
             index = random.sample(range(0, len(self.files)-1), 2)
             outpath = os.path.join(self.here, "results", "hardcuts", str(i) + ".avi")
             self.csv_hardcuttimestamps(outpath, self.files[index[0]])
             cutgenerator(self.files[index[0]], self.files[index[1]], outpath, False, self.fps)
             
-        print("Generating soft cuts...")
+        if(self.numgradual>0):
+             print("Generating soft cuts...") 
         for i in range(self.numgradual):
             index = random.sample(range(0, len(self.files)-1), 2)
             outpath = os.path.join(self.here, "results", "softcuts", str(i) + ".avi")
