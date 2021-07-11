@@ -71,8 +71,12 @@ class expand_frame():
     end-end frames in the original video reference
     '''
     len = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    rightN = (N//2)
-    leftN = (N//2)
+    if not N%2:
+      rightN = (N//2)
+      leftN = (N//2)
+    else:
+      rightN = (N//2)
+      leftN = (N//2)+1
     if ref>=rightN  and len-ref>=leftN:
       start = ref-rightN
       end = ref+leftN
