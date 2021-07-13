@@ -40,8 +40,26 @@ class shotgenerator():
             times = f.readlines()[2:]
         f.close()    
         return times
+
+    def add_noise(self, frame):
+        '''
+        Adds random noise to an image.
+        INPUT - frame
+        frame:input frame where noise is to be added
+        OUTPUT - noisy
+        noisy:frame with added noise
+        '''
+        mean = 0
+        var = np.random.uniform(0, 1.0)
+        sigma = var**0.5
+        row,col= frame.shape
+        gauss = np.random.normal(mean,sigma,(row,col))
+        gauss = gauss.reshape(row,col)
+        noisy = frame + gauss
+        noisy = np.uint8(noisy)
+        return noisy     
     
-    def shotmaker(self, start, end, videopath, outpath):
+    def shotmaker(self, start, end, videopath, outpath, noise):
         '''
         Generates and stores individual shots in a video given start and end frame
         of the shots, and the videopath of the parent video. Shots are named with
@@ -52,15 +70,18 @@ class shotgenerator():
         height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         outpath = os.path.join(outpath, str(start) + '.avi')
-        out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (width, height))
+        out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (width, height), 0)
         while framecount <= end:
             video.set(1, framecount-1)
             res, frame = video.read()
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+            if noise:
+                frame = self.add_noise(frame)
             out.write(frame)
             framecount = framecount + 1
         out.release()
 
-    def run(self, vidname, outpath):
+    def run(self, vidname, outpath, noise):
         '''
         Check if the length of individual shots are greater than a threshold value.
         If yes, runs the shotmaker function to generate and store shots. 
@@ -78,10 +99,10 @@ class shotgenerator():
             start = int(boundary.split(" ")[0])
             end = int(boundary.split(" ")[1][:-1])
             if (end - start) > self.threshold_frame:
-                self.shotmaker(start, end, videopath, outpath)   
+                self.shotmaker(start, end, videopath, outpath, noise)   
                 count+=1
 
-    def iterator(self, num_video=-1):
+    def iterator(self, num_video=-1, noise=False):
         '''
         Iterates videos in 'videos' folder created by the viddownlaod.py module.
         Call run function to create shots from all videos or specified number of videos.
@@ -101,7 +122,7 @@ class shotgenerator():
             outpath = os.path.join(self.here, "shots", video.split('._-o-_.')[1].rsplit('.', 1)[0])
             if not os.path.exists(outpath):
                 os.makedirs(outpath)
-                self.run(video, outpath)
+                self.run(video, outpath, noise)
 
 if __name__ == '__main__':
-    shotgenerator("/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb", 24).iterator(2)
+    shotgenerator("/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/msb", 24).iterator(2, True)

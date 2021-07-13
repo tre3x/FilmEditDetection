@@ -26,7 +26,7 @@ class cutgenerator():
         self.height = int(self.shot1.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.width = int(self.shot1.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.fps = fps
-        self.out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height), 0)
+        self.out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
         self.alpha = 1
         self.gradualcut = gradualcut
         if gradualcut: self.duration = duration
@@ -45,7 +45,6 @@ class cutgenerator():
             if ret==False:
                 break
             else:
-                frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
                 self.out.write(frame)
 
     def create_transition(self):
