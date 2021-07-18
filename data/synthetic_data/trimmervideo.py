@@ -229,34 +229,61 @@ class reader():
         self.hardcut = hardcut
         self.nocut = nocut
 
-    def read_csv(self, csvpath):
+    def read_csv(self):
         '''
         Function which reads CSV file containing timestamps, and pass the data to nocutdatamaker/softcutdatamaker 
         to generate the video snippet with no cut or soft cut respectively.
         '''
-        with open(csvpath, 'r') as file:
-            reader = csv.reader(file)
-            if self.softcut:
-                print("Generating soft-cut snippets...")
-            if self.hardcut:
-                print("Generating hard-cut snippets...")
-            if self.nocut:
-                print("Generating no-cut snippets...")
-            for row in reader:
-                if self.nocut:
-                    nocutdatamaker(row[0], row[1], row[2], self.fps, self.framenum).run()
-                if self.softcut:
-                    softcutdatamaker(row[0], row[1], row[2], self.fps, self.framenum).run()
-                if self.hardcut:
-                    hardcutdatamaker(row[0], row[1], self.fps, self.framenum).run()
+        csvpath = ""
+        if self.softcut:
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                csvpath = os.path.join(here, "results", "softcuts", "timestamps.csv")
+                if os.path.isfile(csvpath):
+                    print("Generating soft-cut snippets...")
+                else:
+                    print("Soft-Cut Annotation CSV file not found!! Make sure the folder structure is correct.")
+            except:
+                print("Bad file found for softcut generation!!")
 
-    def run(self, csvpath):
+        if self.hardcut:
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                csvpath = os.path.join(here, "results", "hardcuts", "timestamps.csv")
+                if os.path.isfile(csvpath):
+                    print("Generating hard-cut snippets...")
+                else:
+                    print("Soft-Cut Annotation CSV file not found!! Make sure the folder structure is correct.")
+            except:
+                print("Bad file found for hardcut generation!!")
+
+        if self.nocut:
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                csvpath = os.path.join(here, "results", "nocuts", "timestamps.csv")
+                if os.path.isfile(csvpath):
+                    print("Generating no-cut snippets...")
+                else:
+                    print("Soft-Cut Annotation CSV file not found!! Make sure the folder structure is correct.")
+            except:
+                print("Bad file found for nocut generation!!")
+
+        if csvpath != "":
+            with open(csvpath, 'r') as file:
+                reader = csv.reader(file)
+                for row in reader:
+                    if self.nocut:
+                        nocutdatamaker(row[0], float(row[1]), float(row[2]), self.fps, self.framenum).run()
+                    if self.softcut:
+                        softcutdatamaker(row[0], float(row[1]), float(row[2]), self.fps, self.framenum).run()
+                    if self.hardcut:
+                        hardcutdatamaker(row[0], float(row[1]), self.fps, self.framenum).run()
+
+    def run(self):
         ################
         #DRIVER FUNCTION
         ################
-        self.read_csv(csvpath)
+        self.read_csv()
 
 if __name__=="__main__":
     reader(24, 50, softcut=True).run()
-    reader(24, 50, hardcut=True).run()
-    reader(24, 50, nocut=True).run()

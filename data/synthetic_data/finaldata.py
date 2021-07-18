@@ -49,12 +49,15 @@ class split_data():
 
     def run(self):
         self.check_dir()
-        print("Splitting softcut video datas...")
-        self.copy_cuts(self.softcutpath_src, self.train_softcut_path, self.test_softcut_path) 
-        print("Splitting hardcut video datas...")
-        self.copy_cuts(self.hardcutpath_src, self.train_hardcut_path, self.test_hardcut_path)  
-        print("Splitting nocut video datas...") 
-        self.copy_cuts(self.nocutpath_src, self.train_nocut_path, self.test_nocut_path)  
+        if os.path.isdir(self.softcutpath_src):
+            print("Splitting softcut video datas...")
+            self.copy_cuts(self.softcutpath_src, self.train_softcut_path, self.test_softcut_path) 
+        if os.path.isdir(self.hardcutpath_src):
+            print("Splitting hardcut video datas...")
+            self.copy_cuts(self.hardcutpath_src, self.train_hardcut_path, self.test_hardcut_path)  
+        if os.path.isdir(self.nocutpath_src):
+            print("Splitting nocut video datas...") 
+            self.copy_cuts(self.nocutpath_src, self.train_nocut_path, self.test_nocut_path)  
     
 
 if __name__ == '__main__':

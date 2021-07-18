@@ -54,13 +54,11 @@ class cutgenerator():
         '''
         alpha = self.alpha
         while(alpha >= 0):
-            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, self.length1-1)
+            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, self.length1-int(self.fps))
             res1, frame1 = self.shot1.read()
-            self.shot2.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            self.shot2.set(cv2.CAP_PROP_POS_FRAMES, int(self.fps))
             res2, frame2 = self.shot2.read()
             frame2 = cv2.resize(frame2, (frame1.shape[1], frame1.shape[0]))
-            frame1 = cv2.cvtColor(frame1, cv2.COLOR_RGB2GRAY)
-            frame2 = cv2.cvtColor(frame2, cv2.COLOR_RGB2GRAY)
             frame = np.add((frame1*alpha), (frame2*(1-alpha))).astype(np.uint8) #Intermediate frame = F1*α + F2*(1-α), α ∈ [0, 1] in soft cut and α = {1,0} in hard cuts.
             alpha = alpha - (1/(self.fps * self.duration))
             self.out.write(frame)
@@ -186,4 +184,4 @@ class runner():
             cutgenerator(self.files[index[0]], self.files[index[1]], outpath, True, self.fps, self.duration)
 
 if __name__ == '__main__':
-    runner(20, 20, 24, 1)
+    runner(0, 20, 24, 1)
