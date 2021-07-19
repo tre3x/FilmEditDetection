@@ -57,6 +57,9 @@ class cut():
             dir_name = 'nocut'
             ref_frame = self.get_referenceframe(N, frame)
 
+        if ref_frame+N//2 > int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)):
+            ref_frame = None
+
         if ref_frame is not None:
             outpath = os.path.join(self.here, "cuts", dir_name, vidname+'_'+str(count)+'.mp4')
                 
