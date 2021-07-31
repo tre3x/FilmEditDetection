@@ -84,7 +84,7 @@ class softcut():
                 data, _ = self.get_data()
             else:
                 _, data = self.get_data()
-            batch = data[np.random.choice(data.shape[0], 32, replace=False), :]
+            batch = data[np.random.choice(data.shape[0], batch_size, replace=False), :]
             batch_x = []
             batch_output = [] 
             
