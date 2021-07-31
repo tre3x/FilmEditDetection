@@ -102,13 +102,13 @@ class expand_frame():
 
     start, end = self.get_bdfr(vid, ref, N)
     out = self.trim_video(vid, start, end)
-    out = out.reshape(-1, 50, 48, 27, 3)
+    out = out.reshape(-1, N, 48, 27, 3)
     return out
 
 class softcut():
     '''
-    MODULE TO PREDICT IF A SET OF CANDIDATE FRAMES ARE SOFT CUTS
-    OR NOT
+    MODULE TO PREDICT IF A SET OF FRAMES ARE SOFT CUTS
+    OR HARDCUTS
     INPUT : model_path, video_path, frames, N
     model_path-trained saved model path of 3DDCNN model
     video_path-target video path
@@ -118,10 +118,10 @@ class softcut():
     def __init__(self, model_path):
         self.model_path = model_path
 
-    def isSoft(self, inp, _mod):
+    def getType(self, inp, _mod):
         '''
         BOOLEAN FUNCTION PREDICTING IF A GIVEN WINDOW OF FRAMES
-        IS SOFT CUT OR NOT
+        IS SOFT CUT OR HARDCUT
         INPUT : inp, _mod
         inp-input video path
         _mod-3DDCNN model
@@ -131,7 +131,7 @@ class softcut():
         pred = np.argmax(_mod.predict(inp))
         return pred
     
-    def get_result(self, video_path, frames, N):
+    def getResult(self, video_path, frames, N):
         '''
         DRIVER FUNCTION TO ITERATE THROUGH THE CANDIDATES AND ANALYSING
         EACH CANDIDATE BY EXPANDING IT INTO A WINDOW OF FRAMES.
@@ -142,16 +142,19 @@ class softcut():
         OUTPUT : res
         res-list of candidate frames which lies in any soft cut region
         '''
-        res = []
+        hard = []
+        soft = []
         print("Running softcut detector module...")
         mod = tf.keras.models.load_model(self.model_path)
         for frame in frames:
             snip = expand_frame(video_path).run(frame, N)
-            if self.isSoft(snip, mod):
-                res.append(frame)
-        return res
+            cutType = self.getType(snip, mod)
+            if cutType==0:
+              hard.append(frame)
+            if cutType==2:
+              soft.append(frame)  
+        return hard, soft
 
 if __name__=='__main__':
-    out = softcut('/3DCNN').get_result('/16.avi', [100, 150, 200, 250, 300, 315], 50)
+    out = softcut('/3DCNN').getResult('/16.avi', [100, 150, 200, 250, 300, 315], 50)
     print(out)
-    
