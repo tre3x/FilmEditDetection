@@ -80,10 +80,10 @@ class model():
         fc-output of fc layer stating the probabilities of cuts
         '''
         fc = input
+        fc = tf.keras.layers.Dropout(0.5)(fc)
         for node in nodeconfig:
             fc = tf.keras.layers.Dense(node, activation=tf.nn.relu)(fc)
-        fc = tf.keras.layers.Dense(2, activation=tf.nn.softmax)(fc)
-        fc = tf.keras.layers.Dense(2, activation=tf.nn.softmax)(fc)
+        fc = tf.keras.layers.Dense(3, activation=tf.nn.softmax)(fc)
         return fc
 
     def architecture(self, input):
