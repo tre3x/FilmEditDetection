@@ -117,6 +117,16 @@ def run_hardcutmetric(frame1, frame2, cnnmodel, cap):
     sim = get_similarity(map1, map2)
     return sim
 
+def timestamps(self, seconds):
+    int_sec = seconds//1
+    float_sec = seconds%1
+    hour = int(int_sec//3600)
+    min = int((int_sec%3600)//60)
+    sec = int((int_sec%3600)%60)
+    milsec = float_sec*1000
+    res = str(hour).zfill(2) + ":" + str(min).zfill(2) + ":" + str(sec).zfill(2) + ":" + str(milsec)[:2]
+    return res
+
 def findcandidate(fr, n, cnnmodel, thres, cap):
     '''
     Function to find hardcut or transition candidate frame whin a mini range of frames. This function
@@ -233,14 +243,16 @@ def get_result(path, child_process, threshold):
     candidate:frame index of transition candidate frame to be passed to next module
     '''
     results = multi_run(path, child_process, threshold)
+    
+    cap = get_vidobject(path)
+    fps = get_fps(cap)
+
     hardcut = []
     candidate = []
     for result in results:
-        for elem in result[0]:
-            candidate.append(elem)
-        for elem in result[1]:
-            hardcut.append(elem)
-    return (hardcut, candidate)
+        hardcut = hardcut + result[1]
+        candidate = candidate + result[0]
+    return hardcut, candidate, fps
 
 if __name__=='__main__':
     child_process = 4 #Number of child process
