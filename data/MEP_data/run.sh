@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VID_PATH='/B_W films'
-declare -i REQ_FRAM=50
+VID_PATH='/BW_films'
+declare -i REQ_FRAM=100
 SPLIT_RATIO=0.7
 
 function generate_data
