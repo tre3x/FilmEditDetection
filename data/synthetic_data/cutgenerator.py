@@ -33,18 +33,38 @@ class cutgenerator():
         else:  self.duration = 1/self.fps            #In case of Hard cut, change occur in one frame
         self.create_video()
 
-    def write_video(self, shotobj):
+    def add_noise(self, frame):
+        '''
+        Adds random noise to an image.
+        INPUT - frame
+        frame:input frame where noise is to be added
+        OUTPUT - noisy
+        noisy:frame with added noise
+        '''
+        mean = 0
+        var = np.random.uniform(0, 1.65)
+        sigma = var**0.5
+        row,col, ch= frame.shape
+        gauss = np.random.normal(mean,sigma,(row,col,ch))
+        gauss = gauss.reshape(row,col,ch)
+        noisy = frame + gauss
+        noisy = np.uint8(noisy)
+        return noisy          
+
+    def write_firstvideo(self, shotobj):
         '''
         Write original shots without transition to output video.
         INPUT : shotobj
         shotobj - Video object of the shot to be written in an 
         output video
         '''
-        while True:
+        count = 0
+        while count < self.length1 - 2*int(self.fps):
             ret, frame = shotobj.read()
             if ret==False:
                 break
             else:
+                frame = self.add_noise(frame)
                 self.out.write(frame)
 
     def create_transition(self):
@@ -53,23 +73,44 @@ class cutgenerator():
         frames per seconds, and duration of the cut(if soft cut).
         '''
         alpha = self.alpha
-        while(alpha >= 0):
-            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, self.length1-int(self.fps))
+        count = 0
+        while(count<self.fps):
+            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, (self.length1-(2*int(self.fps))+count))
             res1, frame1 = self.shot1.read()
-            self.shot2.set(cv2.CAP_PROP_POS_FRAMES, int(self.fps))
+            self.shot2.set(cv2.CAP_PROP_POS_FRAMES, int(self.fps)+count)
             res2, frame2 = self.shot2.read()
             frame2 = cv2.resize(frame2, (frame1.shape[1], frame1.shape[0]))
             frame = np.add((frame1*alpha), (frame2*(1-alpha))).astype(np.uint8) #Intermediate frame = F1*α + F2*(1-α), α ∈ [0, 1] in soft cut and α = {1,0} in hard cuts.
-            alpha = alpha - (1/(self.fps * self.duration))
+            alpha = alpha - (1/(self.fps * 1))
+            count = count + 1
+            frame = self.add_noise(frame)
             self.out.write(frame)
+
+    def write_secondvideo(self, shotobj):
+        '''
+        Write original shots without transition to output video.
+        INPUT : shotobj
+        shotobj - Video object of the shot to be written in an 
+        output video
+        '''
+        count = 2*int(self.fps)
+        while True:
+            shotobj.set(1, count)
+            ret, frame = shotobj.read()
+            if ret==False:
+                break
+            else:
+                frame = self.add_noise(frame)
+                self.out.write(frame)
+                count+=1
 
     def create_video(self):
         ################
         #DRIVER FUNCTION
         ################
-        self.write_video(self.shot1)                    #Writing shot1
+        self.write_firstvideo(self.shot1)                    #Writing shot1
         self.create_transition()                        #Creating intermediate transition
-        self.write_video(self.shot2)                    #Writing shot2
+        self.write_secondvideo(self.shot2)                    #Writing shot2
         self.out.release()                              #We got a video with synthetic cut!
 
 
