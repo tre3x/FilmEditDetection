@@ -53,10 +53,14 @@ class softcut_data():
         results-video file paths with video class label
         '''
         results = []
-        for x in os.walk(path):
-            for y in glob.glob(os.path.join(x[0], '*.avi')):
-                label = np.array(self.get_labels(y, dirname))
-                results.append([y, label])
+        extensions = ('.mp4', '.avi')
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                if any(filename.endswith(extension) for extension in extensions):
+                    filepath = os.path.join(root, filename)
+                    label = np.array(self.get_labels(filepath, dirname))
+                    results.append([filepath, label])
+        print(results)
         return results 
 
     def load_traindata(self, train_path):
@@ -87,7 +91,5 @@ class softcut_data():
 
 
 if __name__=='__main__':
-    res = softcut().load_traindata('/train')
-    res = softcut().load_testdata('/test')
-    print(res[np.random.choice(res.shape[0], 32, replace=False), :])
+    res = softcut_data().load_testdata('/home/tre3x/Python/FilmEditsDetection/data/MEP_data/finaldata/test')
     
