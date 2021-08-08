@@ -1,5 +1,5 @@
 import os
-from Models import hardcut, softcut
+from .model import hardcut, softcut
 
 class predict():
     '''
@@ -51,10 +51,10 @@ class predict():
         hardcuts-frame index of hard cuts present
         candidates-frame index of transition candidates
         '''
-        hardcuts, candidates = hardcut.get_result(vid_path, self.child_process, self.threshold)
+        hardcuts, candidates, fps = hardcut.get_result(vid_path, self.child_process, self.threshold)
         return hardcuts, candidates, fps
 
-    def verify_cuts(self, vid_path, frames, softcut=False):
+    def verify_cuts(self, vid_path, frames, ifSoftcut=False):
         '''
         FUNCTION TO CALL SOFT CUT DETECTOR DL MODULE
         INPUT : vid_path, candidates
@@ -63,11 +63,11 @@ class predict():
         OUTPUT : softcuts
         softcuts-frame index of soft cuts present
         '''
-        if softcut:
-            _, softcuts = softcut.softcut(self.model_path).get_result(vid_path, frames, self.N)
+        if ifSoftcut:
+            _, softcuts = softcut.softcut(self.model_path).getResult(vid_path, frames, self.N)
             return softcuts
         else:
-            hardcut, _ = softcut.softcut(self.model_path).get_result(vid_path, frames, self.N)
+            hardcut, _ = softcut.softcut(self.model_path).getResult(vid_path, frames, self.N)
             return hardcut
 
     def run(self, vid_path, timestamps=False):
@@ -80,8 +80,9 @@ class predict():
         softcuts-frame index of soft cuts present
         '''
         hardcuts, candidates, fps = self.get_hardcuts(vid_path)
+        print("Hardcuts : {}".format(hardcuts))
         hardcuts = self.verify_cuts(vid_path, hardcuts)
-        softcuts = self.verify_cuts(vid_path, candidates, softcut=True)
+        softcuts = self.verify_cuts(vid_path, candidates, ifSoftcut=True)
         if timestamps:
             hardcuts = self.get_timestamps(hardcuts, fps)
             candidates = self.get_timestamps(candidates, fps)
@@ -89,8 +90,8 @@ class predict():
         print("Hardcuts : {}".format(hardcuts))
         print("Candidates : {}".format(candidates))
         print("Softcuts : {}".format(softcuts))
-
+        
         return hardcuts, softcuts
 
 if __name__=='__main__':
-    predict(0.75, 2, 50, '/home/tre3x/Python/Red_Hen/Models/3DCNN').run('/home/tre3x/Python/Red_Hen/DatasetGenerator/MEPdata/a_babys_shoe.mp4', True)
+    predict(0.75, 2, 50, '/home/tre3x/Python/Red_Hen/Models/3DCNN').run('/home/tre3x/Python/FilmEditsDetection/uploads/Gold_is_Not_All_10.mp4', True)

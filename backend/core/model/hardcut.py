@@ -191,7 +191,7 @@ def run(path, cp, thres, group_number):
            tf.config.experimental.set_memory_growth(gpu, True)
     except:
        pass
-
+    
     cap = get_vidobject(path)
     n = get_fps(cap)
     frame_jump_unit = get_framejumpunit(cap, cp)
@@ -200,6 +200,7 @@ def run(path, cp, thres, group_number):
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
+
     for fr in range(init_frame, init_frame+frame_jump_unit, n):
         result = findcandidate(fr, n, cnnmodel, thres, cap)
         if not result:
@@ -242,22 +243,30 @@ def get_result(path, child_process, threshold):
     hardcut:frame index of the hardcut frames
     candidate:frame index of transition candidate frame to be passed to next module
     '''
-    results = multi_run(path, child_process, threshold)
+    #results = multi_run(path, child_process, threshold) MULTIPROCESSING NOT WORKING WITH FLASK
+    results = run(path, 1, threshold, 0)
     
     cap = get_vidobject(path)
     fps = get_fps(cap)
 
     hardcut = []
     candidate = []
+    '''
+    MULTIPROCESSING NOT WORKING WITH FLASK
     for result in results:
         hardcut = hardcut + result[1]
         candidate = candidate + result[0]
+    '''
+    for hcs in results[1]:
+        hardcut.append(hcs)
+    for scs in results[0]:
+        candidate.append(scs)
     return hardcut, candidate, fps
 
 if __name__=='__main__':
     child_process = 4 #Number of child process
     threshold = 0.75
-    path = "a_babys_shoe.mp4"
+    path = "/home/tre3x/Python/FilmEditsDetection/uploads/Classmates_1914_22.mp4"
 
     start = time.time()
     r = get_result(path, child_process, threshold)

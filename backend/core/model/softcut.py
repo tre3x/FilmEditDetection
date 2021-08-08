@@ -144,7 +144,7 @@ class softcut():
         '''
         hard = []
         soft = []
-        print("Running softcut detector module...")
+        print("Running validation module...")
         mod = tf.keras.models.load_model(self.model_path)
         for frame in frames:
             snip = expand_frame(video_path).run(frame, N)
