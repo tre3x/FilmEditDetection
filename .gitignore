@@ -7,4 +7,5 @@ backend/core/data/synthetic_data/videos
 backend/core/data/synthetic_data/results
 backend/core/data/synthetic_data/finaldata
 backend/core/data/synthetic_data/trim_video
+backend/core/model/trainedmodel
 backend/uploads
