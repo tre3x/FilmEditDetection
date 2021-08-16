@@ -1,5 +1,6 @@
 import os
 import cv2
+import argparse
 import numpy as np
 import tensorflow as tf
 from softcut_model import model
@@ -123,4 +124,35 @@ class softcut():
 
 
 if __name__=='__main__':
-    mod = softcut('/train', '/test', 1, 1, 16, (50, 48, 27, 3)).train(32, 5, 40, 15, True, '/model')
+    parser = argparse.ArgumentParser(description='3DCNN training Tool')
+
+    parser.add_argument('--trainpath', type=str, default='', help='What is the training video path?')
+    parser.add_argument('--testpath', type=str, default='', help='What is the testing 3DCNN model?')
+    parser.add_argument('--sdcnn', type=int, default=-1, help='What is the number of SDCNN blocks?')
+    parser.add_argument('--ddcnn', type=int, default=-1, help='What is the number of DDCNN blocks?')
+    parser.add_argument('--f', type=int, default=-1, help='What is the number of filters?')
+
+    parse.add_argument('--batch', type=int, default=-1, help='What is the batchsize for training?')
+    parse.add_argument('--epoch', type=int, default=-1, help='What is the epoch for training?')
+    parse.add_argument('--steps', type=int, default=-1, help='What is the steps per epoch for training?')
+    parse.add_argument('--stepsval', type=int, default=-1, help='What is the steps per epoch for validation?')
+    parse.add_argument('--modpath', type=int, default=-1, help='What is the path of saved model?')
+
+    args = parser.parse_args()
+    print("Configuration")
+    print("----------------------------------------------------------------------")
+    print("Training Video path : {}".format(args.trainpath))
+    print("Testing video path : {}".format(args.testpath))
+    print("Number of SDCNN blocks : {}".format(args.sdcnn))
+    print("Number of DDCNN blocks : {}".format(args.ddcnn))
+    print("Number of filters : {}".format(args.f))
+    print("Input video dimension : {}".format((50, 48, 27, 3)))
+    print("Batch size : {}".format(args.batch))
+    print("Number of epochs for training : {}".format(args.epoch))
+    print("Number of steps per epoch while training : {}".format(args.steps))
+    print("Number of steps per epoch while validation : {}".format(args.stepsval))
+    print("Trained Model path : {}".format(args.modpath))
+    print("----------------------------------------------------------------------")
+
+
+    mod = softcut(args.trainpath, args.testpath, args.sdcnn, args.ddcnn, args.f, (50, 48, 27, 3)).train(args.batch, args.epoch, args.steps, args.stepsval, True, args.modpath)

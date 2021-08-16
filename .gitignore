@@ -1,11 +1,13 @@
 **/__pycache__
-backend/core/data/MEP_data/B_W Films
-backend/core/data/MEP_data/cuts
-backend/core/data/MEP_data/finaldata
-backend/core/data/synthetic_data/shots
-backend/core/data/synthetic_data/videos
-backend/core/data/synthetic_data/results
-backend/core/data/synthetic_data/finaldata
-backend/core/data/synthetic_data/trim_video
-backend/core/model/trainedmodel/**
-backend/uploads
+data/MEP_data/B_W Films
+data/MEP_data/cuts
+data/MEP_data/finaldata
+data/synthetic_data/shots
+data/synthetic_data/videos
+data/synthetic_data/results
+data/synthetic_data/finaldata
+data/synthetic_data/trim_video
+/csv_shots
+/csv_cuts
+/json_mep
+model/trainedmodel/**

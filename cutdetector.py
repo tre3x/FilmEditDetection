@@ -1,5 +1,5 @@
 import os
-from .model import hardcut, softcut
+from model import hardcut, softcut
 
 class predict():
     '''
@@ -41,6 +41,13 @@ class predict():
             fras.append(stamp)
         return fras
 
+    def get_seconds(self, frames, fps):
+        fras = []
+        for frame in frames:
+            sec = frame/fps
+            fras.append(sec)
+        return fras
+
     def get_hardcuts(self, vid_path):
         '''
         FUNCTION TO CALL THE FIRST MODULE FOR HARD-CUT
@@ -70,6 +77,13 @@ class predict():
             hardcut, _ = softcut.softcut(self.model_path).getResult(vid_path, frames, self.N)
             return hardcut
 
+    def make_dict(self, frames, typ):
+        dictionary = {}
+        for frame in frames:
+            dictionary.update({frame:typ})
+
+        return dictionary
+
     def run(self, vid_path, timestamps=False):
         '''
         DRIVER FUNCTION TO CALL THE MODULES
@@ -84,9 +98,11 @@ class predict():
         hardcuts = self.verify_cuts(vid_path, hardcuts)
         softcuts = self.verify_cuts(vid_path, candidates, ifSoftcut=True)
         if timestamps:
-            hardcuts = self.get_timestamps(hardcuts, fps)
-            candidates = self.get_timestamps(candidates, fps)
-            softcuts = self.get_timestamps(softcuts, fps)
+            hardcuts = self.get_seconds(hardcuts, fps)
+            candidates = self.get_seconds(candidates, fps)
+            softcuts = self.get_seconds(softcuts, fps)
+        hardcuts = self.make_dict(hardcuts, 'hard-cut')
+        softcuts = self.make_dict(softcuts, 'soft-cut')
         print("Hardcuts : {}".format(hardcuts))
         print("Candidates : {}".format(candidates))
         print("Softcuts : {}".format(softcuts))

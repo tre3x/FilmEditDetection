@@ -1,0 +1,53 @@
+{
+    "@context": [
+        "http://www.w3.org/ns/anno.jsonld",
+        "http://iiif.io/api/presentation/3/context.json"
+    ],
+    "service": [
+        {
+            "id": "https://github.com/tre3x/FilmEditDetection",
+            "type": "CutDetector",
+            "client_id": "FilmEditDetector",
+            "client_ver": "0.0.1"
+        }
+    ],
+    "id": "file://absolute/file/path/a_babys_shoe.json",
+    "type": "Manifest",
+    "label": {
+        "en": [
+            "Annotations for \"a_babys_shoe\""
+        ]
+    },
+    "rights": "http://creativecommons.org/licenses/by/4.0/",
+    "items": [
+        {
+            "id": "file://absolute/file/path/a_babys_shoe.json#canvas",
+            "type": "Canvas",
+            "height": 1080,
+            "width": 1920,
+            "duration": 618.83,
+            "content": [
+                {
+                    "id": "file://absolute/file/path/a_babys_shoe.mp4",
+                    "type": "Video",
+                    "height": 1080,
+                    "width": 1920,
+                    "duration": 618.83,
+                    "label": {
+                        "en": "a_babys_shoe"
+                    },
+                    "description": {
+                    }
+                }
+            ],
+            "items": [
+                {
+                    "id": "file://absolute/file/path/a_babys_shoe.json#annotations",
+                    "type": "AnnotationPage",
+                    "items": [
+                    ]
+                }
+            ]
+        }
+    ]
+}
