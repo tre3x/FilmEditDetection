@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 ## About
-This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
+This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video, process the video with different deep learning models stacked one after other, finally predicts and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
 This tool was produced for Google Summer Code 2021 with RedHenLabs and Media Ecology Project. 
 
 ## Getting Started
