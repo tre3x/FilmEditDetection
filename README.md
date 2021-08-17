@@ -42,4 +42,4 @@ python main.py --vidpath <Video path> --modpath <path of the trained CNN model> 
 - <modpath> - Path of the trained model trained/downloaded previously
 - <operation> - Output format of the result. Available formats : CSV file containing frame index of cuts, CSV file containing timestamps of shots, MEP json - format containing timestamps of shots in Media Ecology Project annotation format.
 
-  To get help about the syntax format : `python main.py --help`# FilmEditDetection
+  To get help about the syntax format : `python main.py --help`
