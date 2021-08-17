@@ -1,4 +1,6 @@
 # FilmEditDetection
+[![Status](https://img.shields.io/badge/status-active-success.svg)]() 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 ## About
 This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
