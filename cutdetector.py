@@ -108,6 +108,3 @@ class predict():
         print("Softcuts : {}".format(softcuts))
         
         return hardcuts, softcuts
-
-if __name__=='__main__':
-    predict(0.75, 2, 50, '/home/tre3x/Python/Red_Hen/Models/3DCNN').run('/home/tre3x/Python/FilmEditsDetection/uploads/Gold_is_Not_All_10.mp4', True)
