@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 ## About
-This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
+This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video, process the video with different deep learning models stacked one after other, finally predicts and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
 This tool was produced for Google Summer Code 2021 with RedHenLabs and Media Ecology Project. 
 
 ## Getting Started
@@ -15,7 +15,7 @@ You need Python 3.X to run this tool
 ### Installation
 For installing this tool with pretrained model, follow the steps below :
 1. Clone this repositary `git clone https://github.com/tre3x/FilmEditDetection.git`
-2. Download the model weights from [here](http://google.com)
+2. Download the model weights from [here](https://drive.google.com/drive/folders/1ShU9F6aRAIbNJXSgvCuWRw274iuHk1DJ?usp=sharing)
 3. Install `requirements.txt` file by `pip install requirements.txt`
 
 For installing this tool with you own trained model, follow the steps below :
