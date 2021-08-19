@@ -94,7 +94,6 @@ class predict():
         softcuts-frame index of soft cuts present
         '''
         hardcuts, candidates, fps = self.get_hardcuts(vid_path)
-        print("Hardcuts : {}".format(hardcuts))
         hardcuts = self.verify_cuts(vid_path, hardcuts)
         softcuts = self.verify_cuts(vid_path, candidates, ifSoftcut=True)
         if timestamps:
@@ -103,6 +102,7 @@ class predict():
             softcuts = self.get_seconds(softcuts, fps)
         hardcuts = self.make_dict(hardcuts, 'hard-cut')
         softcuts = self.make_dict(softcuts, 'soft-cut')
+        print("All numbers denotes timestamps of cuts in seconds.")
         print("Hardcuts : {}".format(hardcuts))
         print("Candidates : {}".format(candidates))
         print("Softcuts : {}".format(softcuts))

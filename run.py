@@ -78,6 +78,7 @@ class run():
                 count=count+1
 
     def mep_json(self, outdir, vidpath, filename, shots, length, height, width):
+        here = os.path.dirname(os.path.abspath(__file__))
         ts = time.time()
         st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
         str_shots=""
@@ -88,7 +89,7 @@ class run():
                 str_shot = "{} {}".format(shot[0], shot[1])
             str_shots = str_shots + str_shot
              
-        with open('sample_json/MEP_sample.json') as f:
+        with open(os.path.join(here, "sample_json", "MEP_sample.json")) as f:
             sample = json.load(f)
 
             sample['id'] = outdir
@@ -164,9 +165,13 @@ class run():
         outdir = os.path.join(outdir, filename+'.json')
         shots = self.shot_time(cuts, length, fps)
         self.mep_json(outdir, vidpath, filename, shots, length, height, width)
-        return outdir   
+        return outdir
 
-    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False):
+    def readonly(self, vidpath, modpath):
+        hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, True)
+        return hc, sc
+
+    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False):
         if iscsvframe:
             outdir = self.check_dir(iscsvframe=True)
             filepath = self.get_csvframes(vidpath, modpath, outdir)
@@ -176,5 +181,5 @@ class run():
         if ismepjson:
             outdir = self.check_dir(ismepjson=True)
             filepath = self.get_mepjson(vidpath, modpath, outdir)
-
-        return filepath
+        if readonly:
+            self.readonly(vidpath, modpath)

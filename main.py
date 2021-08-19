@@ -1,3 +1,4 @@
+import os
 import argparse
 from run import run
 
@@ -9,6 +10,14 @@ def main():
     parser.add_argument('--operation', type=str, default='', help='What is the output content?(cuts, shots, mepformat)')
 
     args = parser.parse_args()
+
+    if args.modpath=='':
+        here = os.path.dirname(os.path.abspath(__file__))
+        args.modpath=os.path.join(here, "model", "trainedmodel")
+        if not os.path.isdir(args.modpath):
+            print("No trained model found!!")
+    if args.operation=='':
+        args.operation='read-only'
 
     print("Configuration")
     print("----------------------------------------------------------------------")
@@ -23,6 +32,8 @@ def main():
         run().run(args.vidpath, args.modpath, iscsvtime=True)
     if args.operation=='mepformat':
         run().run(args.vidpath, args.modpath, ismepjson=True)
+    if args.operation=='read-only':
+        run().run(args.vidpath, args.modpath, readonly=True)
 
 
 if __name__=='__main__':
