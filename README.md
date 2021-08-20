@@ -65,8 +65,8 @@ module load singularity/3.7.1
 ```
 6. Run the image
 ```bash
-singularity run filmedit.img --vidpath <path/to/video> --modpath <path/to/model> 
+singularity run -B <path/to/video> -B <path/to/model> filmedit.img --vidpath <path/to/video> --modpath <path/to/model> 
 ```
-- `<path/to/video>` denotes the input video path
-- `<path/to/model>` denotes the path to trained model. If empty, the tool will tun on pre trained model.
+- `<path/to/video>` denotes the absolute input video path
+- `<path/to/model>` denotes the absolute path to trained model. If empty, the tool will tun on pre trained model.
 

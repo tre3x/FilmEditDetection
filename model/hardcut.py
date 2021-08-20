@@ -200,7 +200,8 @@ def run(path, cp, thres, group_number):
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
-
+    print("Path : {}, fps : {}".format(path, n))
+    print("Running Hard-Cut detection module")
     for fr in range(init_frame, init_frame+frame_jump_unit, n):
         result = findcandidate(fr, n, cnnmodel, thres, cap)
         if not result:

@@ -103,8 +103,7 @@ class predict():
         hardcuts = self.make_dict(hardcuts, 'hard-cut')
         softcuts = self.make_dict(softcuts, 'soft-cut')
         print("All numbers denotes timestamps of cuts in seconds.")
-        print("Hardcuts : {}".format(hardcuts))
-        print("Candidates : {}".format(candidates))
-        print("Softcuts : {}".format(softcuts))
+        print("Hard-Cuts : {}".format(hardcuts))
+        print("Soft-Cuts : {}".format(softcuts))
         
         return hardcuts, softcuts

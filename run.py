@@ -9,6 +9,7 @@ from cutdetector import predict
 
 class run():
     def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False):
+        #Creates output directory if not present
         here = os.path.dirname(os.path.abspath(__file__))
         if iscsvframe:
             outdir = os.path.join(here, "csv_cuts")
@@ -26,11 +27,13 @@ class run():
         return outdir
 
     def sort_cuts(self, hc, sc):
+        #Sort cuts according to timestamps
         cuts = {**hc, **sc}
         cuts = dict(sorted(cuts.items()))
         return cuts
 
     def shot_time(self, cuts, length, fps):
+        #Creates a list of start and end timestamps of shots
         shots = []
         if len(list(cuts.items())) >= 1:
             first = 0
@@ -60,6 +63,7 @@ class run():
         return shots
 
     def csv_frames(self, outpath, cuts):
+        #Writes a CSV file with frame index of cuts
         with open(outpath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['index', 'frame', 'type'])
@@ -69,6 +73,7 @@ class run():
                 count=count+1
 
     def csv_time(self, outpath, shots):
+        #Writes a CSV file with timestamps of start and end frames
         with open(outpath, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(['index', 'start_frame', 'end_frame'])
@@ -78,6 +83,8 @@ class run():
                 count=count+1
 
     def mep_json(self, outdir, vidpath, filename, shots, length, height, width):
+        #Writes a JSON file formatted with MEP web annotation, containing 
+        #timestamps of start and end timestanps of shots
         here = os.path.dirname(os.path.abspath(__file__))
         ts = time.time()
         st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
@@ -133,6 +140,7 @@ class run():
             json_string = json.dump(sample, f, ensure_ascii=False, indent=4)
 
     def get_csvframes(self, vidpath, modpath, outdir):
+        #Driver function to write csv format with cuts frame index
         hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, False)
         cuts = self.sort_cuts(hc, sc)
         outdir = os.path.join(outdir, vidpath.split('/')[-1]+'.csv')
@@ -140,6 +148,8 @@ class run():
         return outdir
 
     def get_csvtime(self, vidpath, modpath, outdir):
+        #Driver function to write CSV format with start and end timestamps
+        # of shots
         filename = vidpath.split('/')[-1].split('.')[0]
         cap = cv2.VideoCapture(vidpath)
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -153,6 +163,7 @@ class run():
         return outdir
 
     def get_mepjson(self, vidpath, modpath, outdir):
+        #Driver function to write MEP web annotation JSON format
         filename = vidpath.split('/')[-1].split('.')[0]
         cap = cv2.VideoCapture(vidpath)
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -168,10 +179,12 @@ class run():
         return outdir
 
     def readonly(self, vidpath, modpath):
+        #Driver function to show only cut timestamps in command line
         hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, True)
         return hc, sc
 
     def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False):
+        #Driver function 
         if iscsvframe:
             outdir = self.check_dir(iscsvframe=True)
             filepath = self.get_csvframes(vidpath, modpath, outdir)
