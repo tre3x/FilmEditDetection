@@ -14,12 +14,12 @@ You need Python 3.X to run this tool
 
 ### Installation
 For installing this tool with pretrained model, follow the steps below :
-1. Clone this repositary `git clone https://github.com/tre3x/FilmEditDetection.git`
+1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
 2. Download the model weights from [here](http://google.com)
 3. Install `requirements.txt` file by `pip install requirements.txt`
 
 For installing this tool with you own trained model, follow the steps below :
-1. Clone this repositary `git clone https://github.com/tre3x/FilmEditDetection.git`
+1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
 2. Go to `data/synthetic_data` and run `run.sh` with neccessary parameters. All parameters can be tweaked from the shell file. This step will download videos from the TRECVID IACC.3 dataset, and process them into small snippets of N frames containing cuts or no-cuts.
 3. Go to `data/MEP_data` and run `run.sh` with neccessary parameters. This step is only valid for Media Ecology Project's video data, and it is designed to produce small snippets with cuts from the very specific annotation format it uses.
 4. Install `requirements.txt` file by `pip install requirements.txt`
