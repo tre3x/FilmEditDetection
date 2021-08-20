@@ -40,7 +40,7 @@ python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <
 ```
 - `<path/to/video>` - Path of target video path
 - `<modpath>` - Path of the trained model trained/downloaded previously
-- `<result_output_format>` - Output format of the result. Available formats : CSV file containing frame index of cuts, CSV file containing timestamps of shots, MEP json - format containing timestamps of shots in Media Ecology Project annotation format.
+- `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file.
 
   To get help about the syntax format : `python main.py --help`
   
