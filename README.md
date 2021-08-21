@@ -5,6 +5,7 @@
 ## About
 This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
 This tool was produced for Google Summer Code 2021 with RedHenLabs and Media Ecology Project. 
+Detailed working of this tool is included in the [final submission blog](https://gsocblog-tre3x.netlify.app/finalsubmission.html).
 
 ## Getting Started
 
@@ -70,3 +71,10 @@ singularity run -B <path/to/video> -B <path/to/model> filmedit.img --vidpath <pa
 - `<path/to/video>` denotes the absolute input video path
 - `<path/to/model>` denotes the absolute path to trained model. If empty, the tool will tun on pre trained model.
 
+## Future Work
+- There are few cases in which the tool fails to classify cuts, like in case of Jump cuts. In the future some other variant of the model
+can be used to classify the cuts which the current model fails to classify.
+- Some films have low contrast with high noise, in which it becomes difficult to classify cuts. Some preprocessing on training data to acheive the same
+and let the model learn those features.
+- The command line interface can currently handle one output operation at a time. It can be modified 
+ to allow the user to generate outputs of multiple format at a time.

@@ -141,9 +141,10 @@ class run():
 
     def get_csvframes(self, vidpath, modpath, outdir):
         #Driver function to write csv format with cuts frame index
+        filename = vidpath.split('/')[-1].split('.')[0]
         hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, False)
         cuts = self.sort_cuts(hc, sc)
-        outdir = os.path.join(outdir, vidpath.split('/')[-1]+'.csv')
+        outdir = os.path.join(outdir, filename+'.csv')
         self.csv_frames(outdir, cuts)
         return outdir
 
