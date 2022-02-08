@@ -6,7 +6,7 @@ import numpy as np
 
 class softcutdatamaker():
     '''
-    This class generates video snippets with no cut in them, i.e. pure shots, given
+    This class generates video snippets with soft cut in them, given
     INPUT : path, initframe, finframe, fps, framenum
     path - path of the video file,
     initframe - starting frame of cut in the video,
@@ -80,7 +80,7 @@ class softcutdatamaker():
 
 class nocutdatamaker():
     '''
-    This class generates video snippets with soft cut in them, given
+    This class generates video snippets with no cut in them, i.e. pure shots, given
     INPUT : path, initframe, finframe, fps, framenum
     path - path of the video file,
     initframe - starting frame of cut in the video,
