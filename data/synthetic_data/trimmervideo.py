@@ -38,7 +38,7 @@ class softcutdatamaker():
     def get_referenceframe(self, vidlength):
         '''
         Get reference frame about which trimming of the parent video is going to take place,
-        to produce shorter video snippet with no cut in between.
+        to produce shorter video snippet with soft cut in between.
         '''
         count = 0
         while True:
