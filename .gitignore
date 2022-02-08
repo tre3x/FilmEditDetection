@@ -10,4 +10,6 @@ data/synthetic_data/trim_video
 /csv_shots
 /csv_cuts
 /json_mep
+/shreyan_test
+/trained-models
 model/trainedmodel/**
