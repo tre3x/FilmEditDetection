@@ -16,7 +16,7 @@ def main():
     if args.vidpath != '':
         if args.modpath=='':
             here = os.path.dirname(os.path.abspath(__file__))
-            args.modpath=os.path.join(here, "model", "trainedmodel")
+            args.modpath=os.path.join(here, "trained-models", "cutdetection-model")
             if not os.path.isdir(args.modpath):
                 print("No trained model found!!")
         if args.operation=='':
