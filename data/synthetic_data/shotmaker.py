@@ -111,7 +111,7 @@ class shotgenerator():
         '''
         downvideos_path = os.path.join(self.here, "videos")
         video_names = []
-        for file in os.listdir("/home/tre3x/Python/FilmEditsDetection/data/synthetic_data/videos"):
+        for file in os.listdir("./videos"):
             if file.endswith(".mp4"):
                 video_names.append(file)
 
