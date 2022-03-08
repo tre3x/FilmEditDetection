@@ -17,7 +17,7 @@ You need Python 3.X to run this tool
 ### Installation
 For installing this tool with pretrained model, follow the steps below :
 1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
-2. Download the model weights from [here](https://drive.google.com/drive/folders/1Mt9hBvhDo7UWXt3QksObgxKB5vxQWbdD?usp=sharing)
+2. Download the pre-trained model from [here](https://drive.google.com/drive/folders/1Mt9hBvhDo7UWXt3QksObgxKB5vxQWbdD?usp=sharing)
 3. Install `requirements.txt` file by `pip install requirements.txt`
 
 For installing this tool with you own trained model, follow the steps below :
