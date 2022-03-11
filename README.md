@@ -12,21 +12,24 @@ Detailed working of this tool is included in the [final submission blog](https:/
 
 
 ### Prerequisites
-You need Python 3.X to run this tool
+You need Python 3.x and Conda package manager to run this tool
 
 ### Installation
 For installing this tool with pretrained model, follow the steps below :
 1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
-2. Download the pre-trained model from [here](https://drive.google.com/drive/folders/1Mt9hBvhDo7UWXt3QksObgxKB5vxQWbdD?usp=sharing)
-3. Install `requirements.txt` file by `pip install requirements.txt`
+2. Install the neccessary dependencies by executing `conda env create -f environment.yml`
 
-For installing this tool with you own trained model, follow the steps below :
-1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
-2. Go to `data/synthetic_data` and run `run.sh` with neccessary parameters. All parameters can be tweaked from the shell file. This step will download videos from the TRECVID IACC.3 dataset, and process them into small snippets of N frames containing cuts or no-cuts.
-3. Go to `data/MEP_data` and run `run.sh` with neccessary parameters. This step is only valid for Media Ecology Project's video data, and it is designed to produce small snippets with cuts from the very specific annotation format it uses.
-4. Install `requirements.txt` file by `pip install requirements.txt`
+### Dataset Description
+Two datasets were used in training the validation/softcut-detection module.
+1. The first dataset used is TRECVID IACC.3 dataset. This video dataset comprises of annotated videos which are further used to create synthetically generated snippets containing hard-cut, soft-cut or no-cut. One way to generate the training data is defined as follows: Go to `data/synthetic_data` and run `run.sh` with neccessary parameters. All parameters can be tweaked from the shell file. This step will download videos from the TRECVID IACC.3 dataset, and process them into small snippets of N frames containing cuts or no-cuts.
+2. The second dataset used is Media Ecology Project's B&W video data, which contains fully annotated films, which has great resemblence to the kiund oif data we are actually dealing with in this work. One way to generate the training data is defined as follows: Go to `data/MEP_data` and run `run.sh` with neccessary parameters. This step is only valid for Media Ecology Project's video data, and it is designed to produce small snippets with cuts from the very specific annotation format it uses.
 
 Now we have the data that can be used for training and testing.
+
+
+### Pre-Trained Model
+One pre-trained model of specific configuration is available, which can be found [here](https://drive.google.com/file/d/1KdyW31aCh6iD1Ot0RJK-N14-4A4NHNiD/view?usp=sharing).
+
 #### Training
 Now we have the data, we can train the model by running `data/train.sh`. The training parameters can be tweaked in the particular file. For training the model :
 1. Run `cd model`
@@ -41,7 +44,7 @@ After setting up the environment, Run :
 python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format>
 ```
 - `<path/to/video>` - Path of target video path
-- `<modpath>` - Path of the trained model trained/downloaded previously
+- `<modpath>` - Path of the model trained/downloaded previously
 - `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file.
 
   To get help about the syntax format : `python main.py --help`
@@ -73,6 +76,7 @@ singularity run -B <path/to/video> -B <path/to/model> filmedit.img --vidpath <pa
 - `<path/to/model>` denotes the absolute path to trained model. If empty, the tool will tun on pre trained model.
 
 ## Future Work
+- Additional features can be added to the tool which provides helpful insights into the film metrics.
 - There are few cases in which the tool fails to classify cuts, like in case of Jump cuts. In the future some other variant of the model
 can be used to classify the cuts which the current model fails to classify.
 - Some films have low contrast with high noise, in which it becomes difficult to classify cuts. Some preprocessing on training data to acheive the same
