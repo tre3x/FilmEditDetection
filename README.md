@@ -51,16 +51,16 @@ python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <
 
 ## MEP Dataset
 The Media Ecology Project's black and white manually annotated video dataset highly resembles the kind of old archival films whose shot boundaries are hard to predict by other computer-based shot boundary detection tools. Hence, the annotated video dataset is very helpful in training the deep learning models used in this tool and making the prediction of shot boundaries in other archival films. The annotated dataset is made possible with the efforts of [Mark J. Williams](https://faculty-directory.dartmouth.edu/mark-j-williams), [John P. Bell](https://itc.dartmouth.edu/people/john-p-bell), and the following students from Dartmouth College and University of Chicago:
--Yangqiao Lu, University of Chicago
--Emily Hester, Dartmouth College
--Elijah Czysz, Dartmouth College
--Noah Hensley, Dartmouth College
--Ileana Sung, Dartmouth College
--Adithi Jayaraman, Dartmouth College
--Momina Naveed, Dartmouth College
--Maria Graziano, Dartmouth College
--Kevin Chen, Dartmouth College
--Frandy Rodriguez, Dartmouth College
+- Yangqiao Lu, University of Chicago
+- Emily Hester, Dartmouth College
+- Elijah Czysz, Dartmouth College
+- Noah Hensley, Dartmouth College
+- Ileana Sung, Dartmouth College
+- Adithi Jayaraman, Dartmouth College
+- Momina Naveed, Dartmouth College
+- Maria Graziano, Dartmouth College
+- Kevin Chen, Dartmouth College
+- Frandy Rodriguez, Dartmouth College
   
 ## Singularity Usage
 To access Singularity image of this tool in the CWRU HPC environment :
