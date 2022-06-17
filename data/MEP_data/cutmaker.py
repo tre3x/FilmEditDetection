@@ -11,13 +11,14 @@ class cut():
         self.csvpath = csvpath
         self.vid_path = vid_path
         self.cap = cv2.VideoCapture(self.vid_path)
+        self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.cuts = ['nocut', 'softcut', 'hardcut']
 
-    def check_dir(self):
-        cuts = ['nocut', 'softcut', 'hardcut']
+    def check_dir(self): 
         cutspath = os.path.join(self.here, "cuts")
         if not os.path.isdir(cutspath):
             os.mkdir(cutspath)
-        for cut in cuts:
+        for cut in self.cuts:
             cutpath = os.path.join(cutspath, cut)
             if not os.path.isdir(cutpath):
                 os.mkdir(cutpath)  
@@ -38,30 +39,26 @@ class cut():
                 cutstamp.append([t, row[2]])
         return cutstamp  
 
-    def get_referenceframe(self, N, cutframes):
-        length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    def nocut_refframe(self, N, cutframes): 
         while True:
-            frame = random.randint(N, length-N-1)
+            frame = random.randint(N, self.length-N-1)
             for i in range(len(cutframes)-1):
                 if frame-cutframes[i][0]>N//2 and cutframes[i+1][0]-frame>N//2:
                     return frame
 
-    def getsnippet(self, frame, N, vidname, count, nocut=False, hardcut=False, softcut=False):
-        if hardcut:
-            dir_name = 'hardcut'
-            ref_frame = frame
-        elif softcut:
-            dir_name = 'softcut'
-            ref_frame = frame
+    def getsnippet(self, frame, N, vidname, count, cuttype):
+        if cuttype=='nocut':
+            ref_frame = self.nocut_refframe(N, frame)
         else:
-            dir_name = 'nocut'
-            ref_frame = self.get_referenceframe(N, frame)
+            ref_frame = frame
 
-        if ref_frame+N//2 > int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)):
-            ref_frame = None
+        if ref_frame+N//2 > self.length:
+            ref_frame = (2*self.length - N)//2
+        if ref_frame < N:
+            ref_frame = N//2
 
         if ref_frame is not None:
-            outpath = os.path.join(self.here, "cuts", dir_name, vidname+'_'+str(count)+'.mp4')
+            outpath = os.path.join(self.here, "cuts", cuttype, vidname+'_'+str(count)+'.mp4')
                 
             height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -86,10 +83,10 @@ class cut():
             sys.stdout.write("\rCuts generated : {}/{}".format(count, len(cuts)))
             sys.stdout.write("\n")
             if cut[1].lower()=='hard':
-                self.getsnippet(cut[0], N, vidname, count, hardcut=True)
+                self.getsnippet(cut[0], N, vidname, count, self.cuts[-1])
             if cut[1].lower()=='soft':
-                self.getsnippet(cut[0], N, vidname, count, softcut=True)
-            self.getsnippet(cuts, N, vidname, count, nocut=True)
+                self.getsnippet(cut[0], N, vidname, count, self.cuts[1])
+            self.getsnippet(cuts, N, vidname, count, self.cuts[0])
             sys.stdout.write("\033[F")
             count=count+1
 
