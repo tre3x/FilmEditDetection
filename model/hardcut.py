@@ -1,4 +1,5 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 import cv2
 import time
 import random
@@ -9,7 +10,6 @@ import pathos.multiprocessing as mp
 from tensorflow.keras.models import Model
 import tensorflow.keras.applications as kerasApp
 from tensorflow.keras.layers import AveragePooling2D, Dense, Flatten
-
 
 def get_vidobject(path):
     '''
