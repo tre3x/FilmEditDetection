@@ -8,6 +8,9 @@ import argparse
 from cutdetector import predict
 
 class run():
+    def __init__(self):
+        self.threshold = 0.85
+
     def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False):
         #Creates output directory if not present
         here = os.path.dirname(os.path.abspath(__file__))
@@ -172,7 +175,7 @@ class run():
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         length = float("{:.2f}".format(length/fps))
-        hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, True)
+        hc, sc = predict(self.threshold, 1, 100, modpath).run(vidpath, True)
         cuts = self.sort_cuts(hc, sc)
         outdir = os.path.join(outdir, filename+'.json')
         shots = self.shot_time(cuts, length, fps)
