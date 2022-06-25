@@ -209,8 +209,6 @@ def run(path, conf, group_number):
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
-    print("Path : {}, fps : {}".format(path, fps))
-    print("Running Hard-Cut detection module")
     for fr in range(init_frame, init_frame+frame_jump_unit, fps):
         result = findcandidate(fr, fps, cnnmodel, thres, cap)
         if not result:
@@ -223,21 +221,22 @@ def run(path, conf, group_number):
     return [candidates, hardcuts]
 
 
-def multi_run(path, cp, thres):
+def multi_run(path, child_process, conf):
     '''
     Function for initiating multiple process on CPU cores. The task of iterating on the video frames
     is parallelized by different independent porcess on different cores.
     INPUT : path, chils_process, threshold
     path-Path of the video file
     child_process-number of child process to be created for multiprocessing
-    thres-threshold value for classifying a frame as hard cut based on the distance metric
+    conf-dictionary consisting of configuration of networks
     OUTPUT : rt
     rt-appended list of output from all cores.
     '''
-    print("Starting process on {} cores".format( min(mp.cpu_count(), cp)) )
-    func = partial(run, path, cp, thres)
+    print("Starting process on {} cores".format( min(mp.cpu_count(), child_process)))
+    print("Running Hard-Cut detection module")
+    func = partial(run, path, conf)
     p = mp.Pool()
-    rt = p.map(func, range(cp))
+    rt = p.map(func, range(child_process))
     p.close()
     return rt
 
@@ -253,23 +252,17 @@ def get_result(path, conf):
     candidate:frame index of transition candidate frame to be passed to next module
     '''
     child_process = conf['hard-cut detector']['child_process']
-
-    #results = multi_run(path, child_process, threshold) MULTIPROCESSING NOT WORKING WITH FLASK
-    results = run(path, conf, 0)
-    
+    start = time.time()
+    results = multi_run(path, child_process, conf)
+    end = time.time()
     cap = get_vidobject(path)
     fps = get_fps(cap)
 
     hardcut = []
     candidate = []
-    '''
-    MULTIPROCESSING NOT WORKING WITH FLASK
+
     for result in results:
         hardcut = hardcut + result[1]
         candidate = candidate + result[0]
-    '''
-    for hcs in results[1]:
-        hardcut.append(hcs)
-    for scs in results[0]:
-        candidate.append(scs)
+
     return hardcut, candidate, fps
