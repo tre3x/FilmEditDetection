@@ -109,14 +109,15 @@ class softcut():
     '''
     MODULE TO PREDICT IF A SET OF FRAMES ARE SOFT CUTS
     OR HARDCUTS
-    INPUT : model_path, video_path, frames, N
+    INPUT : model_path, video_path, frames
     model_path-trained saved model path of 3DDCNN model
     video_path-target video path
     frames-set of candiate frames to be analysed
-    N-window size each candiate will be expanded into
+    conf-dictionary containing configuration of the network
     '''
-    def __init__(self, model_path):
+    def __init__(self, model_path, config):
         self.model_path = model_path
+        self.config = config
 
     def getType(self, inp, _mod):
         '''
@@ -131,14 +132,13 @@ class softcut():
         pred = np.argmax(_mod.predict(inp))
         return pred
     
-    def getResult(self, video_path, frames, N):
+    def getResult(self, video_path, frames):
         '''
         DRIVER FUNCTION TO ITERATE THROUGH THE CANDIDATES AND ANALYSING
         EACH CANDIDATE BY EXPANDING IT INTO A WINDOW OF FRAMES.
         INPUT : video_path, frames, N
         video_path-target video path
         frames-set of candiate frames to be analysed
-        N-window size each candiate will be expanded into
         OUTPUT : res
         res-list of candidate frames which lies in any soft cut region
         '''
@@ -147,7 +147,7 @@ class softcut():
         print("Running validation module...")
         mod = tf.keras.models.load_model(self.model_path)
         for frame in frames:
-            snip = expand_frame(video_path).run(frame, N)
+            snip = expand_frame(video_path).run(frame, self.config['soft-cut detector']['window_size'])
             cutType = self.getType(snip, mod)
             if cutType==0:
               hard.append(frame)

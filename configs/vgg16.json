@@ -1,0 +1,14 @@
+{
+    "network": "VGG16",
+    "hard-cut detector": {
+        "encoder": "VGG16",
+        "input_dim": 224,
+        "pool" : 1,
+        "weights": "imagenet",
+        "threshold": 0.85,
+        "child_process": 1
+    },
+    "soft-cut detector": {
+        "window_size":100
+    }
+}

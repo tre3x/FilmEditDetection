@@ -8,8 +8,8 @@ import argparse
 from cutdetector import predict
 
 class run():
-    def __init__(self):
-        self.threshold = 0.85
+    def __init__(self, conf):
+        self.conf = conf
 
     def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False):
         #Creates output directory if not present
@@ -145,7 +145,7 @@ class run():
     def get_csvframes(self, vidpath, modpath, outdir):
         #Driver function to write csv format with cuts frame index
         filename = vidpath.split('/')[-1].split('.')[0]
-        hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, False)
+        hc, sc = predict(self.conf, modpath).run(vidpath, False)
         cuts = self.sort_cuts(hc, sc)
         outdir = os.path.join(outdir, filename+'.csv')
         self.csv_frames(outdir, cuts)
@@ -159,7 +159,7 @@ class run():
         fps = cap.get(cv2.CAP_PROP_FPS)
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         length = length/fps
-        hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, True)
+        hc, sc = predict(self.conf, modpath).run(vidpath, True)
         cuts = self.sort_cuts(hc, sc)
         outdir = os.path.join(outdir, filename+'.csv')
         shots = self.shot_time(cuts, length, fps)
@@ -175,7 +175,7 @@ class run():
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         length = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         length = float("{:.2f}".format(length/fps))
-        hc, sc = predict(self.threshold, 1, 100, modpath).run(vidpath, True)
+        hc, sc = predict(self.conf, modpath).run(vidpath, True)
         cuts = self.sort_cuts(hc, sc)
         outdir = os.path.join(outdir, filename+'.json')
         shots = self.shot_time(cuts, length, fps)
@@ -184,7 +184,7 @@ class run():
 
     def readonly(self, vidpath, modpath):
         #Driver function to show only cut timestamps in command line
-        hc, sc = predict(0.75, 1, 100, modpath).run(vidpath, True)
+        hc, sc = predict(self.conf, modpath).run(vidpath, True)
         return hc, sc
 
     def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False):

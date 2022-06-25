@@ -7,7 +7,7 @@ from scipy import spatial
 from functools import partial
 import pathos.multiprocessing as mp
 from tensorflow.keras.models import Model
-from tensorflow.keras.applications import ResNet50
+import tensorflow.keras.applications as kerasApp
 from tensorflow.keras.layers import AveragePooling2D, Dense, Flatten
 
 
@@ -58,16 +58,24 @@ def get_framejumpunit(cap, cp):
     frame_jump_unit = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) // cp
     return frame_jump_unit
 
-def model():
+def model(conf):
     '''
     Function to return the ResNet CNN model to be used for producing 
     feature maps
+    INPUT : conf
+    conf-dictionary consisting of configuration of networks
     OUTPUT : final_model
     final_model-model to be used for producing feature maps of video frames 
     '''
-    model = ResNet50(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
+    encoder = conf['hard-cut detector']['encoder']
+    dim = conf['hard-cut detector']['input_dim']
+    if encoder=='VGG16':
+        model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
+    if encoder=='ResNet50':
+        model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
     output = model.layers[-1].output
-    output = AveragePooling2D()(output)
+    if conf['hard-cut detector']['pool']:
+        output = AveragePooling2D()(output)
     final_model = Model(inputs = model.input, outputs = output)
     return final_model
 
@@ -80,8 +88,9 @@ def get_feature(frame, model):
     OUTPUT : map
     map-feature map obtained
     '''
-    img = cv2.resize(frame, (224, 224))
-    img = img.reshape(-1, 224, 224, 3)
+    dim = 224
+    img = cv2.resize(frame, (dim, dim))
+    img = img.reshape(-1, dim, dim, 3)
     map = model.predict(img)
     map = map.flatten()
     return map
@@ -170,15 +179,14 @@ def findcandidate(fr, n, cnnmodel, thres, cap):
     except:
         return 0
 
-def run(path, cp, thres, group_number):
+def run(path, conf, group_number):
     '''
     Independent function to be run on different CPU cores for iterations through the trimmed range of
     video frames. Recevies a group number which decide the start and final frame the CPU core will
     iterate within. 
-    INPUT : path, cp, thres, group_number
+    INPUT : path, conf, group_number
     path-Path of the video file
-    cp-number of child process to be created for multiprocessing
-    thres-threshold value for classifying a frame as hard cut based on the distance metric
+    conf-dictionary consisting of configuration of networks
     group_number - group number of the process to be perform on a CPU core independently. Decides
     the range of frame to compute upon.
     OUTPUT : hardcut, candidate
@@ -193,17 +201,18 @@ def run(path, cp, thres, group_number):
        pass
     
     cap = get_vidobject(path)
-    n = get_fps(cap)
-    frame_jump_unit = get_framejumpunit(cap, cp)
-    cnnmodel = model()
+    fps = get_fps(cap)
+    frame_jump_unit = get_framejumpunit(cap, conf['hard-cut detector']['child_process'])
+    thres = conf['hard-cut detector']['threshold']
+    cnnmodel = model(conf)
 
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
-    print("Path : {}, fps : {}".format(path, n))
+    print("Path : {}, fps : {}".format(path, fps))
     print("Running Hard-Cut detection module")
-    for fr in range(init_frame, init_frame+frame_jump_unit, n):
-        result = findcandidate(fr, n, cnnmodel, thres, cap)
+    for fr in range(init_frame, init_frame+frame_jump_unit, fps):
+        result = findcandidate(fr, fps, cnnmodel, thres, cap)
         if not result:
              pass
         else:
@@ -232,20 +241,21 @@ def multi_run(path, cp, thres):
     p.close()
     return rt
 
-def get_result(path, child_process, threshold):
+def get_result(path, conf):
     '''
     Driver function for calling the hard cut detector module. Calls multi run module to
     initiate multiprocessing units.
     INPUT : path, chils_process, threshold
     path-Path of the video file
-    child_process-number of child process to be created for multiprocessing
-    threshold-threshold value for classifying a frame as hard cut based on the distance metric
+    conf-dictionary consisting of configuration of networks
     OUTPUT : hardcut, candidate
     hardcut:frame index of the hardcut frames
     candidate:frame index of transition candidate frame to be passed to next module
     '''
+    child_process = conf['hard-cut detector']['child_process']
+
     #results = multi_run(path, child_process, threshold) MULTIPROCESSING NOT WORKING WITH FLASK
-    results = run(path, 1, threshold, 0)
+    results = run(path, conf, 0)
     
     cap = get_vidobject(path)
     fps = get_fps(cap)
@@ -263,16 +273,3 @@ def get_result(path, child_process, threshold):
     for scs in results[0]:
         candidate.append(scs)
     return hardcut, candidate, fps
-
-if __name__=='__main__':
-    child_process = 4 #Number of child process
-    threshold = 0.75
-    path = "/home/tre3x/Python/FilmEditsDetection/uploads/Classmates_1914_22.mp4"
-
-    start = time.time()
-    r = get_result(path, child_process, threshold)
-    end= time.time()
-
-    print("Hardcuts : {}".format(r[0]))
-    print("Candidate : {}".format(r[1]))
-    print("Time taken : {}".format(end-start))

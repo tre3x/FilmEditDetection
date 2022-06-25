@@ -1,0 +1,14 @@
+{
+    "network": "ResNet50",
+    "hard-cut detector": {
+        "encoder": "ResNet50",
+        "input_dim": 224,
+        "Pool" : 1,
+        "weights": "imagenet",
+        "threshold": 0.75,
+        "child_process": 1
+    },
+    "soft-cut detector": {
+        "window_size":100
+    }
+}
