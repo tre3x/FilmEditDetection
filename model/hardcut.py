@@ -73,7 +73,7 @@ def model(conf):
     if encoder=='VGG16':
         model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
     if encoder=='ResNet50':
-        model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
+        model = kerasApp.ResNet50(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
     output = model.layers[-1].output
     if conf['hard-cut detector']['pool']:
         output = AveragePooling2D()(output)
@@ -163,9 +163,10 @@ def findcandidate(fr, n, cnnmodel, thres, cap):
             return 0
         else:
             while True:
+                if (a>b): break
                 mid = (a+b)//2
                 d13 = run_hardcutmetric(a, b, cnnmodel, cap)
-                if(b == a+1):
+                if(b == a+1) and (d13 < thres):
                     return [a, d13, 1]
                 if(d13 > thres) and (flag == 1):
                     return [a, d13, 0]
