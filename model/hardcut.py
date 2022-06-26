@@ -3,10 +3,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import cv2
 import time
 import random
+from tqdm import tqdm
 import tensorflow as tf
 from scipy import spatial
 from functools import partial
-import pathos.multiprocessing as mp
+import multiprocessing as mp
 from tensorflow.keras.models import Model
 import tensorflow.keras.applications as kerasApp
 from tensorflow.keras.layers import AveragePooling2D, Dense, Flatten
@@ -209,6 +210,10 @@ def run(path, conf, group_number):
     hardcuts = []
     candidates = []  
     init_frame = frame_jump_unit * group_number
+
+    bar = tqdm(desc='Core {}'.format(group_number),total=int(frame_jump_unit/fps),
+                                                    position=group_number,leave=False)
+                            
     for fr in range(init_frame, init_frame+frame_jump_unit, fps):
         result = findcandidate(fr, fps, cnnmodel, thres, cap)
         if not result:
@@ -218,6 +223,8 @@ def run(path, conf, group_number):
                 hardcuts.append(result[0])
             else:
                 candidates.append(result[0])
+        bar.update(1)
+    bar.close()
     return [candidates, hardcuts]
 
 

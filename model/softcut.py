@@ -3,6 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import cv2
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 class expand_frame():
@@ -149,7 +150,7 @@ class softcut():
         soft = []
         print("Running validation module...")
         mod = tf.keras.models.load_model(self.model_path)
-        for frame in frames:
+        for frame in tqdm(frames, leave=False):
             snip = expand_frame(video_path).run(frame, self.config['soft-cut detector']['window_size'])
             cutType = self.getType(snip, mod)
             if cutType==0:
