@@ -43,10 +43,10 @@ After setting up the environment, Run :
 ```bash
 python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --config <path/to/config>
 ```
-- `<path/to/video>` - Path of target video path
-- `<modpath>` - Path of the model trained/downloaded previously
-- `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file.
--`<path/to/config>` - Path to network configuration file. This file (in json format) should contain all information about the networks used in the tool. Few default congigs are stored in the `config` folder.
+- `<path/to/video>` - Path of target video path.
+- `<modpath>` - Path of the model trained/downloaded previously. Default path : `.\trained-models\cutdetection-model`
+- `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file. Default mode : `read-only`
+- `<path/to/config>` - Path to network configuration file. This file (in json format) should contain all information about the networks used in the tool. Few default congigs are stored in the `config` folder. Default path : `.\configs\vgg16.json`
 
   To get help about the syntax format : `python main.py --help`
 
