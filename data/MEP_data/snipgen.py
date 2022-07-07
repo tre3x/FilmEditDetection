@@ -91,6 +91,3 @@ class iterator():
         sys.stdout.write("\n")
         sys.stdout.write("\n")
 
-if __name__=='__main__':
-    iterator('/home/tre3x/python/FilmEditDetection/data/MEP_data/B_W films').run(100)
-

@@ -8,9 +8,9 @@ class split_data():
     def __init__(self, split_ratio):
         self.here = os.path.dirname(os.path.abspath(__file__))
         self.ratio = split_ratio
-        self.softcutpath_src = os.path.join(self.here, "cuts", "softcut")
-        self.hardcutpath_src = os.path.join(self.here, "cuts", "hardcut")
-        self.nocutpath_src = os.path.join(self.here, "cuts", "nocut")
+        self.softcutpath_src = os.path.join(self.here, "cuts", "softcuts")
+        self.hardcutpath_src = os.path.join(self.here, "cuts", "hardcuts")
+        self.nocutpath_src = os.path.join(self.here, "cuts", "nocuts")
 
     def check_dir(self):
         base_path = os.path.join(self.here, "finaldata")
@@ -57,7 +57,3 @@ class split_data():
         sys.stdout.write("\rSplitting nocut video datas...")
         self.copy_cuts(self.nocutpath_src, self.train_nocut_path, self.test_nocut_path)  
         sys.stdout.write("\n")
-    
-
-if __name__ == '__main__':
-    split_data(0.5).run()

@@ -1,15 +1,19 @@
 #!/bin/bash
 
-VID_PATH='/BW_films'
+VID_PATH='./test'
 declare -i REQ_FRAM=100
+declare -i NUM_HARDCUTS=50
+declare -i NUM_SOFTCUTS=50
+declare -i NUM_NOCUTS=50
 SPLIT_RATIO=0.7
 
 function generate_data
 {
 echo 'INITIATING MODULES'
 python - <<START
-import cutmaker, splitdata
-cutmaker.iterator('$VID_PATH').run($REQ_FRAM)
+import snipgen, cutmaker, splitdata
+snipgen.iterator('$VID_PATH').run($REQ_FRAM)
+cutmaker.runner(numhardcuts=$NUM_HARDCUTS, numgradualcuts=$NUM_SOFTCUTS, numnocuts=$NUM_NOCUTS).run(num_frames=$REQ_FRAM)
 splitdata.split_data($SPLIT_RATIO).run()
 START
 } 

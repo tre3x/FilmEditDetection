@@ -1,132 +1,125 @@
 import os
-import csv
 import cv2
-import sys
 import random
 import numpy as np
+import glob
+from snipgen import iterator
+
 
 class cut():
-    def __init__(self, csvpath, vid_path):
-        self.here = os.path.dirname(os.path.abspath(__file__))
-        self.csvpath = csvpath
-        self.vid_path = vid_path
-        self.cap = cv2.VideoCapture(self.vid_path)
-        self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        self.cuts = ['nocut', 'softcut', 'hardcut']
+    def __init__(self, outpath, duration=None, num_frames = None, vidPath1=None, vidPath2=None, cuttype='no'):
+        self.vidpath1 = vidPath1
+        self.vidpath2 = vidPath2
+        if self.vidpath1 is not None:
+            self.shot1 = cv2.VideoCapture(self.vidpath1)
+            self.length1 = int(self.shot1.get(cv2.CAP_PROP_FRAME_COUNT))   
+            self.height = int(self.shot1.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            self.width = int(self.shot1.get(cv2.CAP_PROP_FRAME_WIDTH))
+            self.fps = int(self.shot1.get(cv2.CAP_PROP_FPS))
+        if self.vidpath2 is not None: 
+            self.shot2 = cv2.VideoCapture(self.vidpath2)
+            self.length2 = int(self.shot2.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    def check_dir(self): 
-        cutspath = os.path.join(self.here, "cuts")
-        if not os.path.isdir(cutspath):
-            os.mkdir(cutspath)
-        for cut in self.cuts:
-            cutpath = os.path.join(cutspath, cut)
-            if not os.path.isdir(cutpath):
-                os.mkdir(cutpath)  
+        self.cuttype = cuttype
+        self.out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'mp4v'), self.fps, (self.width, self.height))
+        if cuttype == 'hard': self.duration = 3/self.fps
+        if cuttype == 'soft': self.duration = duration
+        if cuttype == 'no': self.expand_frames(num_frames)
+        
 
-    def timestamp2frame(self, time):
-        fps = self.cap.get(cv2.CAP_PROP_FPS)
-        timelist = time.split(":")
-        frame = round(((int(timelist[0])* 3600) + (int(timelist[1])* 60) + int(timelist[2]) +(int(timelist[3])/1000))  * fps)
-        return frame
-
-    def get_cutstamps(self):
-        cutstamp=[]
-        with open(self.csvpath, 'r') as file:
-            reader = csv.reader(file)
-            next(reader)
-            for row in reader:
-                t = self.timestamp2frame(row[1])
-                cutstamp.append([t, row[2]])
-        return cutstamp  
-
-    def nocut_refframe(self, N, cutframes): 
+    def write_video(self, shotobj, start, end):
+        shotobj.set(cv2.CAP_PROP_POS_FRAMES, start)
+        count = 0
         while True:
-            frame = random.randint(N, self.length-N-1)
-            for i in range(len(cutframes)-1):
-                if frame-cutframes[i][0]>N//2 and cutframes[i+1][0]-frame>N//2:
-                    return frame
+            ret, frame = shotobj.read()
+            if not ret or count == end:
+                break
+            else:
+                self.out.write(frame.astype(np.uint8))
+                count = count+1
+    
+    def create_transition(self, alpha=1):
+        count = 0
+        while(count<int(self.duration*self.fps)):
+            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, (self.length1-int(self.duration*self.fps))+count)
+            res1, frame1 = self.shot1.read()
+            self.shot2.set(cv2.CAP_PROP_POS_FRAMES, count)
+            res2, frame2 = self.shot2.read()
+            frame2 = cv2.resize(frame2, (frame1.shape[1], frame1.shape[0]))
+            frame = np.add((frame1*alpha), (frame2*(1-alpha))).astype(np.uint8) 
+            alpha = alpha - (1/(self.fps * 1))
+            count = count + 1
+            self.out.write(frame)
 
-    def getsnippet(self, frame, N, vidname, count, cuttype):
-        if cuttype=='nocut':
-            ref_frame = self.nocut_refframe(N, frame)
-        else:
-            ref_frame = frame
+    def expand_frames(self, num_frames):
+        orgvidpath = os.path.join("/".join(self.vidpath1.split('/')[:-3]), "B_W films", "{}.mp4".format(self.vidpath1.split('/')[-2]))
+        anchor = int(self.vidpath1.split('/')[-1].split('.')[0])  #NAME OF FILM SNIPPETS IN THE SNIP FOLDER, CORRESPONDS TO ANCHOR FRAMES
+        cap = cv2.VideoCapture(orgvidpath)
+        for fr in range(anchor-num_frames//2, anchor+num_frames//2):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, fr)
+            ret, frame = cap.read()
+            if not ret:
+                break
+            else:
+                self.out.write(frame.astype(np.uint8))
 
-        if ref_frame+N//2 > self.length:
-            ref_frame = (2*self.length - N)//2
-        if ref_frame < N:
-            ref_frame = N//2
-
-        if ref_frame is not None:
-            outpath = os.path.join(self.here, "cuts", cuttype, vidname+'_'+str(count)+'.mp4')
-                
-            height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            fps = self.cap.get(cv2.CAP_PROP_FPS)
-            out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
-
-            startframe = ref_frame - N//2
-            framecount = startframe
-
-            while framecount < startframe+N:
-                self.cap.set(cv2.CAP_PROP_POS_FRAMES, int(framecount))
-                res, frame = self.cap.read()
-                out.write(frame)
-                framecount = framecount + 1
-            out.release()
-        
-        
-    def cut_iterator(self, N, vidname):
-        count = 1
-        cuts = self.get_cutstamps()
-        for cut in cuts:
-            sys.stdout.write("\rCuts generated : {}/{}".format(count, len(cuts)))
-            sys.stdout.write("\n")
-            if cut[1].lower()=='hard':
-                self.getsnippet(cut[0], N, vidname, count, self.cuts[-1])
-            if cut[1].lower()=='soft':
-                self.getsnippet(cut[0], N, vidname, count, self.cuts[1])
-            self.getsnippet(cuts, N, vidname, count, self.cuts[0])
-            sys.stdout.write("\033[F")
-            count=count+1
-
-    def make(self, N, vidname):
-        self.check_dir()
-        self.cut_iterator(N, vidname)
-
-
-class iterator():
-    def __init__(self, vid_path):
-        self.vidspath = vid_path
-        self.csvspath = os.path.join(vid_path, "csv_s of B_W sheets per individual title")
-
-    def getcuts(self, vid, N):
+    def make(self):
         try:
-            vidpath = os.path.join(self.vidspath, vid+'.mp4')
-            csvpath = os.path.join(self.csvspath, vid+' - Sheet1.csv')
-            cut(csvpath, vidpath).make(N, vid)
+            self.write_video(self.shot1, 0, self.length1-int(self.duration*self.fps)-1)
+            self.create_transition()
+            self.write_video(self.shot2, int(self.duration*self.fps), self.length2)
         except:
             pass
+        self.out.release()     
 
-    def run(self, N):
-        vidcount=1
-        for vidname in os.listdir(self.vidspath):
-            if vidname.endswith('.mp4'):
-                vid = ".".join((vidname.split("/")[-1]).split('.')[:-1])
+class runner():
+    def __init__(self, numhardcuts=0, numgradualcuts=0, numnocuts=0):
+        here = os.path.dirname(os.path.abspath(__file__))
+        self.snippath = os.path.join("snips")
+        self.numgradualcuts = numgradualcuts
+        self.numhardcuts = numhardcuts
+        self.numnocuts = numnocuts
+        self.outdirpath = os.path.join(here, "cuts")
+    
+    def checkdir(self, path):
+        if not os.path.isdir(path):
+            os.mkdir(path)
 
-                sys.stdout.write("\r#{}/{}".format(vidcount, len(os.listdir(self.vidspath))-1))
-                sys.stdout.write('\n')
-                sys.stdout.write("\rGetting cuts of {}...".format(vid))
-                sys.stdout.write('\n')
-                
-                self.getcuts(vid, N)
+    def getFiles(self):
+        files = []
+        for x in os.walk(self.snippath):
+            for y in glob.glob(os.path.join(x[0], '*.avi')):
+                files.append(y)
+        return files
 
-                sys.stdout.write("\033[F")
-                sys.stdout.write("\033[F")
-                vidcount=vidcount+1
-        sys.stdout.write("\n")
-        sys.stdout.write("\n")
-        sys.stdout.write("\n")
+    def run(self, duration=1, num_frames=100):
+        self.checkdir(self.outdirpath)
+        files = self.getFiles()
+        
 
-if __name__=='__main__':
-    print(iterator('/B_W films').run(50))
+        if(self.numhardcuts > 0):
+            print("Generating hard cut snippets...")
+            hardcutdir = os.path.join(self.outdirpath, "hardcuts")
+            self.checkdir(hardcutdir)
+            for i in range(self.numhardcuts):
+                cuts = random.sample(range(0, len(files)-1), 2)
+                outpath = os.path.join(hardcutdir, "{}.mp4".format(i))
+                cut(outpath, duration = duration, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "hard").make()
+
+        if(self.numgradualcuts>0):
+            print("Generating gradual cut snippets...") 
+            softcutdir = os.path.join(self.outdirpath, "softcuts")
+            self.checkdir(softcutdir)
+            for i in range(self.numgradualcuts):
+                cuts = random.sample(range(0, len(files)-1), 2)
+                outpath = os.path.join(softcutdir, "{}.mp4".format(i))
+                cut(outpath, duration = duration, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "soft").make()
+
+        if(self.numnocuts>0):
+            print("Generating no cut snippets...") 
+            nocutdir = os.path.join(self.outdirpath, "nocuts")
+            self.checkdir(nocutdir)
+            for i in range(self.numnocuts):
+                cuts = random.sample(range(0, len(files)-1), 1)
+                outpath = os.path.join(nocutdir, "{}.mp4".format(i))
+                cut(outpath, num_frames = 100, vidPath1 = files[cuts[0]], cuttype = "no")
