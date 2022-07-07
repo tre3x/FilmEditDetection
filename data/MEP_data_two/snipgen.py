@@ -8,6 +8,10 @@ class snips():
         here = os.path.dirname(os.path.abspath(__file__))
         self.csvpath = csvpath
         self.vidpath = vidpath
+        self.cap = cv2.VideoCapture(self.vidpath)
+        self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
+        self.width  = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         if not os .path.isdir(os.path.join(here, "snips")):
             os.mkdir(os.path.join(here, "snips"))
         self.outpath =  os.path.join(here, "snips", ".".join(vidpath.split('/')[-1].split('.')[:-1]))
@@ -16,9 +20,10 @@ class snips():
         if not os.path.isdir(self.outpath):
             os.mkdir(self.outpath)
 
-    def stamp2second(self, stamp):
+    def stamp2index(self, stamp):
         st = stamp.split(':')
-        return int(st[0])*(3.6*(10**6)) + int(st[1])*(6*(10**4)) + int(st[2])*(10**3) + int(st[-1])
+        sec =  int(st[0])*3600 + int(st[1])*60 + int(st[2]) + int(st[-1])/1000
+        return int(sec*self.fps)
 
     def midShotsIndex(self):
         cuts = []
@@ -27,32 +32,29 @@ class snips():
             datareader = csv.reader(csvfile)
             next(datareader)
             for row in datareader:
-                cuts.append(self.stamp2second(row[1]))
+                cuts.append(self.stamp2index(row[1]))
             for index in range(len(cuts)):
                 try:
-                    mids.append(int((cuts[index] + cuts[index+1])/2))
+                    if cuts[index+1] - cuts[index] > self.window:
+                        mids.append(int((cuts[index] + cuts[index+1])/2))
                 except:
                     pass
         return mids
 
     def store(self, window, frames):
-        cap = cv2.VideoCapture(self.vidpath)
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
-        width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         for frame in frames:
-            out = cv2.VideoWriter(os.path.join(self.outpath, "{}.avi".format(frame)), cv2.VideoWriter_fourcc(*'XVID'), fps, (width, height), 0)
+            out = cv2.VideoWriter(os.path.join(self.outpath, "{}.avi".format(frame)), cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
             for fr in range(frame-window//2, frame+window//2):
-                cap.set(cv2.CAP_PROP_POS_MSEC, fr)
-                res, frame = cap.read()
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, fr)
+                res, frame = self.cap.read()
                 out.write(frame)
             out.release()
 
     def gen(self, N):
         self.checkdir()
-        window = N//2
+        self.window = N//2
         mids = self.midShotsIndex()
-        self.store(window, mids)
+        self.store(self.window, mids)
         
 
 
@@ -90,5 +92,5 @@ class iterator():
         sys.stdout.write("\n")
 
 if __name__=='__main__':
-    iterator('/home/at02400@ens.ad.etsmtl.ca/FilmEditDetection/data/MEP_data/B_W films').run(100)
+    iterator('/home/tre3x/python/FilmEditDetection/data/MEP_data/B_W films').run(100)
 
