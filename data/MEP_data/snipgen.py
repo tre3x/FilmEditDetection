@@ -9,7 +9,7 @@ class snips():
         self.csvpath = csvpath
         self.vidpath = vidpath
         self.cap = cv2.VideoCapture(self.vidpath)
-        self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
+        self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.width  = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         if not os .path.isdir(os.path.join(here, "snips")):
@@ -41,33 +41,40 @@ class snips():
                     pass
         return mids
 
-    def store(self, window, frames):
+    def store(self, window, frames, target_fps):
         for frame in frames:
-            out = cv2.VideoWriter(os.path.join(self.outpath, "{}.avi".format(frame)), cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
+            out = cv2.VideoWriter(os.path.join(self.outpath, "{}.avi".format(frame)), cv2.VideoWriter_fourcc(*'XVID'), target_fps, (self.width, self.height))
             for fr in range(frame-window//2, frame+window//2):
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, fr)
                 res, frame = self.cap.read()
                 out.write(frame)
             out.release()
 
-    def gen(self, N):
+    def gen(self, N, duration, target_fps):
         self.checkdir()
-        self.window = N//2
+        self.window = N//2 + (target_fps*duration)//2
         mids = self.midShotsIndex()
-        self.store(self.window, mids)
+        self.store(self.window, mids, target_fps)
         
 
 
 class iterator():
-    def __init__(self, vid_path):
+    def __init__(self, vid_path, fps, duration):
         self.vidspath = vid_path
+        self.fps = fps
+        self.duration = duration
         self.csvspath = os.path.join(vid_path, "csv_s of B_W sheets per individual title")
+
+        assert os.path.isdir(self.vidspath), 'MEP BW video dataset not found!!'
+        assert os.path.isdir(self.csvspath), 'MEP CSV annotations not found!!'
 
     def storesnips(self, vid, N):
         try:
             vidpath = os.path.join(self.vidspath, vid+'.mp4')
             csvpath = os.path.join(self.csvspath, vid+' - Sheet1.csv')
-            snips(csvpath, vidpath).gen(N)
+            if not os.path.isfile(csvpath):
+                print("CSV annotation file of {}.mp4 not found, skipping this video!".foprmat(vid))
+            snips(csvpath, vidpath).gen(N, self.duration, self.fps)
         except:
             pass
 

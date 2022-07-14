@@ -32,7 +32,7 @@ class split_data():
     def vidpaths(self, vidpath):
         cutpaths = []
         for x in os.walk(vidpath):
-            for y in glob.glob(os.path.join(x[0], '*.mp4')):
+            for y in glob.glob(os.path.join(x[0], '*.avi')):
                 cutpaths.append(y)
 
         return cutpaths

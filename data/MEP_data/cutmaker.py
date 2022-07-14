@@ -10,6 +10,8 @@ class cut():
     def __init__(self, outpath, duration=None, num_frames = None, vidPath1=None, vidPath2=None, cuttype='no'):
         self.vidpath1 = vidPath1
         self.vidpath2 = vidPath2
+        self.outpath = outpath
+        self.num_frames = num_frames
         if self.vidpath1 is not None:
             self.shot1 = cv2.VideoCapture(self.vidpath1)
             self.length1 = int(self.shot1.get(cv2.CAP_PROP_FRAME_COUNT))   
@@ -21,8 +23,8 @@ class cut():
             self.length2 = int(self.shot2.get(cv2.CAP_PROP_FRAME_COUNT))
 
         self.cuttype = cuttype
-        self.out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'mp4v'), self.fps, (self.width, self.height))
-        if cuttype == 'hard': self.duration = 3/self.fps
+        self.out = cv2.VideoWriter(outpath,cv2.VideoWriter_fourcc(*'XVID'), self.fps, (self.width, self.height))
+        if cuttype == 'hard': self.duration = 1/self.fps
         if cuttype == 'soft': self.duration = duration
         if cuttype == 'no': self.expand_frames(num_frames)
         
@@ -32,16 +34,17 @@ class cut():
         count = 0
         while True:
             ret, frame = shotobj.read()
-            if not ret or count == end:
+            if not ret or count == (end-start):
                 break
             else:
+                frame = cv2.resize(frame, (self.width, self.height))
                 self.out.write(frame.astype(np.uint8))
                 count = count+1
     
     def create_transition(self, alpha=1):
         count = 0
         while(count<int(self.duration*self.fps)):
-            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, (self.length1-int(self.duration*self.fps))+count)
+            self.shot1.set(cv2.CAP_PROP_POS_FRAMES, ((self.num_frames//2)-(int(self.duration*self.fps)//2))+count)
             res1, frame1 = self.shot1.read()
             self.shot2.set(cv2.CAP_PROP_POS_FRAMES, count)
             res2, frame2 = self.shot2.read()
@@ -49,7 +52,7 @@ class cut():
             frame = np.add((frame1*alpha), (frame2*(1-alpha))).astype(np.uint8) 
             alpha = alpha - (1/(self.fps * 1))
             count = count + 1
-            self.out.write(frame)
+            self.out.write(frame.astype(np.uint8))
 
     def expand_frames(self, num_frames):
         orgvidpath = os.path.join("/".join(self.vidpath1.split('/')[:-3]), "B_W films", "{}.mp4".format(self.vidpath1.split('/')[-2]))
@@ -65,12 +68,12 @@ class cut():
 
     def make(self):
         try:
-            self.write_video(self.shot1, 0, self.length1-int(self.duration*self.fps)-1)
+            self.write_video(self.shot1, 0, (self.num_frames//2)-(int(self.duration*self.fps)//2))
             self.create_transition()
-            self.write_video(self.shot2, int(self.duration*self.fps), self.length2)
+            self.write_video(self.shot2, int(self.duration*self.fps), self.num_frames//2 + (int(self.duration*self.fps)//2))
+            self.out.release()
         except:
             pass
-        self.out.release()     
 
 class runner():
     def __init__(self, numhardcuts=0, numgradualcuts=0, numnocuts=0):
@@ -103,8 +106,8 @@ class runner():
             self.checkdir(hardcutdir)
             for i in range(self.numhardcuts):
                 cuts = random.sample(range(0, len(files)-1), 2)
-                outpath = os.path.join(hardcutdir, "{}.mp4".format(i))
-                cut(outpath, duration = duration, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "hard").make()
+                outpath = os.path.join(hardcutdir, "{}.avi".format(i))
+                cut(outpath, duration = duration, num_frames = 100, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "hard").make()
 
         if(self.numgradualcuts>0):
             print("Generating gradual cut snippets...") 
@@ -112,8 +115,8 @@ class runner():
             self.checkdir(softcutdir)
             for i in range(self.numgradualcuts):
                 cuts = random.sample(range(0, len(files)-1), 2)
-                outpath = os.path.join(softcutdir, "{}.mp4".format(i))
-                cut(outpath, duration = duration, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "soft").make()
+                outpath = os.path.join(softcutdir, "{}.avi".format(i))
+                cut(outpath, duration = duration, num_frames = 100, vidPath1 = files[cuts[0]], vidPath2 = files[cuts[1]], cuttype = "soft").make()
 
         if(self.numnocuts>0):
             print("Generating no cut snippets...") 
@@ -121,5 +124,5 @@ class runner():
             self.checkdir(nocutdir)
             for i in range(self.numnocuts):
                 cuts = random.sample(range(0, len(files)-1), 1)
-                outpath = os.path.join(nocutdir, "{}.mp4".format(i))
+                outpath = os.path.join(nocutdir, "{}.avi".format(i))
                 cut(outpath, num_frames = 100, vidPath1 = files[cuts[0]], cuttype = "no")
