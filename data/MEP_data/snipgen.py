@@ -73,7 +73,7 @@ class iterator():
             vidpath = os.path.join(self.vidspath, vid+'.mp4')
             csvpath = os.path.join(self.csvspath, vid+' - Sheet1.csv')
             if not os.path.isfile(csvpath):
-                print("CSV annotation file of {}.mp4 not found, skipping this video!".foprmat(vid))
+                print("CSV annotation file of {}.mp4 not found, skipping this video!".format(vid))
             snips(csvpath, vidpath).gen(N, self.duration, self.fps)
         except:
             pass
