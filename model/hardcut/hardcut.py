@@ -4,6 +4,7 @@ import cv2
 import time
 import random
 from tqdm import tqdm
+import numpy as np
 import tensorflow as tf
 from scipy import spatial
 from functools import partial
@@ -70,14 +71,19 @@ def model(conf):
     '''
     encoder = conf['hard-cut detector']['encoder']
     dim = conf['hard-cut detector']['input_dim']
-    if encoder=='VGG16':
-        model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
-    if encoder=='ResNet50':
-        model = kerasApp.ResNet50(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
-    output = model.layers[-1].output
-    if conf['hard-cut detector']['pool']:
-        output = AveragePooling2D()(output)
-    final_model = Model(inputs = model.input, outputs = output)
+    thresh = conf['hard-cut detector']['threshold']
+    model_path = conf['hard-cut detector']['model_path']
+    if thresh is None or model_path is not None:
+        final_model = tf.keras.models.load_model(conf['hard-cut detector']['model_path'])
+    else:
+        if encoder=='VGG16':
+            model = kerasApp.VGG16(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
+        if encoder=='ResNet50':
+            model = kerasApp.ResNet50(input_shape=(dim, dim, 3), include_top=False, weights=conf['hard-cut detector']['weights'])
+        output = model.layers[-1].output
+        if conf['hard-cut detector']['pool']:
+            output = AveragePooling2D()(output)
+        final_model = Model(inputs = model.input, outputs = output)
     return final_model
 
 def get_feature(frame, model):
@@ -95,6 +101,7 @@ def get_feature(frame, model):
     map = model.predict(img)
     map = map.flatten()
     return map
+    
 
 def get_similarity(map1, map2):
     '''
@@ -109,7 +116,7 @@ def get_similarity(map1, map2):
     result = 1 - spatial.distance.cosine(map1, map2)
     return result
 
-def run_hardcutmetric(frame1, frame2, cnnmodel, cap):
+def run_hardcutmetric(frame1, frame2, cnnmodel, cap, trained=False):
     '''
     Driver function to get similarity between two frames
     INPUT : frame1, frame2, cnnmodel, cap
@@ -122,10 +129,19 @@ def run_hardcutmetric(frame1, frame2, cnnmodel, cap):
     '''
     frame1 = readframe(cap, frame1)
     frame2 = readframe(cap, frame2)
-    map1 = get_feature(frame1, cnnmodel)
-    map2 = get_feature(frame2, cnnmodel)
-    sim = get_similarity(map1, map2)
+    if not trained:
+        map1 = get_feature(frame1, cnnmodel)
+        map2 = get_feature(frame2, cnnmodel)
+        sim = get_similarity(map1, map2)
+    else:
+        frame1 = cv2.resize(frame1, (224,224))
+        frame2 = cv2.resize(frame2, (224,224))
+        frame1 = frame1.reshape(-1, 224, 224, 3)
+        frame2 = frame2.reshape(-1, 224, 224, 3)
+        inp = [frame1, frame2]
+        sim = np.argmax(cnnmodel(inp))
     return sim
+
 
 def timestamps(self, seconds):
     int_sec = seconds//1
@@ -137,7 +153,7 @@ def timestamps(self, seconds):
     res = str(hour).zfill(2) + ":" + str(min).zfill(2) + ":" + str(sec).zfill(2) + ":" + str(milsec)[:2]
     return res
 
-def findcandidate(fr, n, cnnmodel, thres, cap):
+def findcandidate(fr, n, cnnmodel, thres, cap, trained):
     '''
     Function to find hardcut or transition candidate frame whin a mini range of frames. This function
     can detect only one cut or cut candidate within the range. The approach to itearte through the mni range
@@ -156,24 +172,24 @@ def findcandidate(fr, n, cnnmodel, thres, cap):
     a = fr
     b = fr + n
     flag = 0
-
+    if thres == None: thres = 0.5
     try:
-        d13 = run_hardcutmetric(a, b, cnnmodel, cap)
+        d13 = run_hardcutmetric(a, b, cnnmodel, cap, trained)
         if(d13 > thres):
             return 0
         else:
             while True:
                 if (a>b): break
                 mid = (a+b)//2
-                d13 = run_hardcutmetric(a, b, cnnmodel, cap)
+                d13 = run_hardcutmetric(a, b, cnnmodel, cap, trained)
                 if(b == a+1) and (d13 < thres):
                     return [a, d13, 1]
                 if(d13 > thres) and (flag == 1):
                     return [a, d13, 0]
                 else:
                     flag = 1
-                    d12 = run_hardcutmetric(a, mid, cnnmodel, cap) 
-                    d23 = run_hardcutmetric(mid, b, cnnmodel, cap)
+                    d12 = run_hardcutmetric(a, mid, cnnmodel, cap, trained) 
+                    d23 = run_hardcutmetric(mid, b, cnnmodel, cap, trained)
                     if(d12>d23):
                         a = mid
                     else:
@@ -214,9 +230,12 @@ def run(path, conf, group_number):
 
     bar = tqdm(desc='Core {}'.format(group_number),total=int(frame_jump_unit/fps),
                                                     position=group_number,leave=False)
-                            
+
     for fr in range(init_frame, init_frame+frame_jump_unit, fps):
-        result = findcandidate(fr, fps, cnnmodel, thres, cap)
+        if conf['hard-cut detector']['threshold'] is None or conf['hard-cut detector']['model_path'] is not None:
+            result = findcandidate(fr, fps, cnnmodel, thres, cap, trained = True)
+        else:
+            result = findcandidate(fr, fps, cnnmodel, thres, cap, trained = False)
         if not result:
              pass
         else:
