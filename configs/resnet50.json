@@ -6,6 +6,7 @@
         "Pool" : 1,
         "weights": "imagenet",
         "threshold": 0.75,
+        "model_path": null,
         "child_process": 1
     },
     "soft-cut detector": {
