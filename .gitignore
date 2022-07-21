@@ -14,3 +14,5 @@ data/synthetic_data/trim_video
 /shreyan_test
 /trained-models
 model/trainedmodel/**
+model/hardcut/data
+model/hardcut/trainedmodel
