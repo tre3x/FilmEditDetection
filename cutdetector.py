@@ -1,5 +1,6 @@
 import os
-from model import hardcut, softcut
+from model.hardcut import hardcut
+from model.softcut import softcut
 
 class predict():
     '''
