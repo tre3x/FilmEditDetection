@@ -96,7 +96,7 @@ class predict():
             softcuts = self.get_seconds(softcuts, fps)
         hardcuts = self.make_dict(hardcuts, 'hard-cut')
         softcuts = self.make_dict(softcuts, 'soft-cut')
-        print("All numbers denotes frame index of cuts.")
+        print("All numbers denotes timestamps of cuts (in seconds).")
         print("Hard-Cuts : {}".format(hardcuts))
         print("Soft-Cuts : {}".format(softcuts))
         
