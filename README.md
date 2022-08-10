@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 ## About
-This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film and MEP json format containing shots timestamps. 
+This is a CLI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film, MEP json format containing shots timestamps, and a format which is supported by cinemetrics for further analysis. 
 This tool was produced for Google Summer Code 2021 with RedHenLabs and Media Ecology Project. 
 
 Detailed working of this tool is included in the [final submission blog](https://gsocblog-tre3x.netlify.app/final-project.html).
@@ -45,7 +45,7 @@ python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <
 ```
 - `<path/to/video>` - Path of target video path.
 - `<modpath>` - Path of the model trained/downloaded previously. Default path : `.\trained-models\cutdetection-model`
-- `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file. Default mode : `read-only`
+- `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `cinemetrics` - a '.cns' formatted file which is supported for uploading to [cinemetrics](http://www.cinemetrics.lv/), `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file. Default mode : `read-only`
 - `<path/to/config>` - Path to network configuration file. This file (in json format) should contain all information about the networks used in the tool. Few default congigs are stored in the `config` folder. Default path : `.\configs\vgg16.json`
 
   To get help about the syntax format : `python main.py --help`
