@@ -11,7 +11,7 @@ class run():
     def __init__(self, conf):
         self.conf = conf
 
-    def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False):
+    def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False, iscinemetrics=False):
         #Creates output directory if not present
         here = os.path.dirname(os.path.abspath(__file__))
         if iscsvframe:
@@ -24,6 +24,10 @@ class run():
                 os.mkdir(outdir)
         if ismepjson:
             outdir = os.path.join(here, "json_mep")
+            if not os.path.isdir(outdir):
+                os.mkdir(outdir)
+        if iscinemetrics:
+            outdir = os.path.join(here, "cinemetrics")
             if not os.path.isdir(outdir):
                 os.mkdir(outdir)
 
@@ -64,6 +68,28 @@ class run():
             shots.append([0, float("{:.2f}".format(length))])
 
         return shots
+    
+    def shot_duration(self, cuts, length, fps):
+        #Creates a list of duration of shots
+        duration = []
+        transition = float("{:.2f}".format(50/fps))
+        if len(list(cuts.items())) > 1:
+            if list(cuts.values())[0] == 'hard-cut':
+                duration.append(float("{:.2f}".format(list(cuts.keys())[0])))
+            if list(cuts.values())[0] == 'soft-cut':
+                duration.append(float("{:.2f}".format(list(cuts.keys())[0]))-transition)
+
+            for k in range(0, len(list(cuts.items()))-1):
+                first = float("{:.2f}".format(list(cuts.keys())[k]))
+                second = float("{:.2f}".format(list(cuts.keys())[k+1]))
+                if list(cuts.values())[k]=='hard-cut' and list(cuts.values())[k+1]=='hard-cut':
+                    duration.append(second-first)
+                elif list(cuts.values())[k]=='soft-cut' and list(cuts.values())[k+1]=='hard-cut':
+                    duration.append(second-first-2*(transition))
+                else:
+                    duration.append(second-(first+transition))
+
+        return duration
 
     def csv_frames(self, outpath, cuts):
         #Writes a CSV file with frame index of cuts
@@ -142,6 +168,26 @@ class run():
         with open(outdir, 'w', encoding='utf-8') as f:
             json_string = json.dump(sample, f, ensure_ascii=False, indent=4)
 
+    def cinemetrics(self, outpath, cuttimestamp, shotduration, length):
+        #Writes a .cms file which supports cinemetrics (http://www.cinemetrics.lv/)
+        totduration = 0
+        for shot in shotduration:
+            totduration = totduration + shot
+        avgshotlength = totduration/len(shotduration)
+        with open(outpath, 'w', newline='') as cmsfile:
+            cmsfile.write("0\n")
+            cmsfile.write("{}\n".format(len(cuttimestamp)))
+            cmsfile.write("{}\n".format(avgshotlength))
+            cmsfile.write("{}\n".format(length))
+            cmsfile.write("BCU;CU;MCU;MS;MLS;FS;LS;Other\n")
+            cmsfile.write("0;0;0;0;0;0;0;0\n")
+            cmsfile.write("0;0;0;0;0;0;0;0\n")
+            cmsfile.write("&@")
+            iterator = 1
+            for duration, cuttime in zip(shotduration, cuttimestamp):
+                cmsfile.write("{};{:.2f};{:.2f};0\n".format(iterator, duration, cuttime))
+                iterator = iterator+1
+
     def get_csvframes(self, vidpath, modpath, outdir):
         #Driver function to write csv format with cuts frame index
         filename = vidpath.split('/')[-1].split('.')[0]
@@ -182,12 +228,26 @@ class run():
         self.mep_json(outdir, vidpath, filename, shots, length, height, width)
         return outdir
 
+    def get_cinemetrics(self, vidpath, modpath, outdir):
+        #Driver function to write cinemetrics formatted output
+        filename = vidpath.split('/')[-1].split('.')[0]
+        cap = cv2.VideoCapture(vidpath)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        length = int(cap.get(cv2.CAP_PROP_FPS))
+        length = float("{:.2f}".format(length/fps)) #length in second
+        hc, sc = predict(self.conf, modpath).run(vidpath, True)
+        cuts = self.sort_cuts(hc, sc)
+        outpath = os.path.join(outdir, filename+'.cms')
+        shotsduration = self.shot_duration(cuts, length, fps)
+        self.cinemetrics(outpath, cuts, shotsduration, length)
+        return
+
     def readonly(self, vidpath, modpath):
         #Driver function to show only cut timestamps in command line
         hc, sc = predict(self.conf, modpath).run(vidpath, True)
         return hc, sc
 
-    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False):
+    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False, iscinemetrics=False):
         #Driver function 
         if iscsvframe:
             outdir = self.check_dir(iscsvframe=True)
@@ -198,5 +258,8 @@ class run():
         if ismepjson:
             outdir = self.check_dir(ismepjson=True)
             filepath = self.get_mepjson(vidpath, modpath, outdir)
+        if iscinemetrics:
+            outdir = self.check_dir(iscinemetrics=True)
+            filepath = self.get_cinemetrics(vidpath, modpath, outdir)
         if readonly:
             self.readonly(vidpath, modpath)

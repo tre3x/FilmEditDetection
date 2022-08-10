@@ -12,7 +12,7 @@ def main():
 
     parser.add_argument('--vidpath', required = True, help='What is the input video path?')
     parser.add_argument('--modpath', default=DEFAULT_MODEL_PATH, help='What is the path of trained 3DCNN model')
-    parser.add_argument('--operation', default='read-only', help='What is the output content?(cuts, shots, mepformat)')
+    parser.add_argument('--operation', default='read-only', help='What is the output content?(cuts, shots, mepformat, cinemetrics)')
     parser.add_argument('--config', default=DEFAULT_CONFIG_PATH, help='What is the path to configuration file?')
 
     args = parser.parse_args()
@@ -36,6 +36,8 @@ def main():
         run(conf).run(args.vidpath, args.modpath, iscsvtime=True)
     if args.operation=='mepformat':
         run(conf).run(args.vidpath, args.modpath, ismepjson=True)
+    if args.operation=='cinemetrics':
+        run(conf).run(args.vidpath, args.modpath, iscinemetrics=True)
     if args.operation=='read-only':
         run(conf).run(args.vidpath, args.modpath, readonly=True)
 
