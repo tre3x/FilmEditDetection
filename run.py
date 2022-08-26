@@ -3,6 +3,7 @@ import cv2
 import csv
 import json
 import time
+import requests
 import datetime
 import argparse
 from cutdetector import predict
@@ -168,14 +169,22 @@ class run():
         with open(outdir, 'w', encoding='utf-8') as f:
             json_string = json.dump(sample, f, ensure_ascii=False, indent=4)
 
-    def cinemetrics(self, outpath, cuttimestamp, shotduration, length):
+    def cinemetrics(self, outpath, cuttimestamp, shotduration, length, submit, cine_details):
         #Writes a .cms file which supports cinemetrics (http://www.cinemetrics.lv/)
         totduration = 0
+        iterator = 1
+        shotlist = []
         for shot in shotduration:
             totduration = totduration + shot
         avgshotlength = totduration/len(shotduration)
+
+        for duration, cuttime in zip(shotduration, cuttimestamp):
+            shotlist.append("{};{:.2f};{:.2f};0".format(iterator, duration, cuttime))
+            iterator = iterator+1  
+        mdata = '\n'.join(shotlist)
+
         with open(outpath, 'w', newline='') as cmsfile:
-            cmsfile.write("0\n")
+            cmsfile.write("1\n")
             cmsfile.write("{}\n".format(len(cuttimestamp)))
             cmsfile.write("{}\n".format(avgshotlength))
             cmsfile.write("{}\n".format(length))
@@ -183,10 +192,26 @@ class run():
             cmsfile.write("0;0;0;0;0;0;0;0\n")
             cmsfile.write("0;0;0;0;0;0;0;0\n")
             cmsfile.write("&@")
-            iterator = 1
-            for duration, cuttime in zip(shotduration, cuttimestamp):
-                cmsfile.write("{};{:.2f};{:.2f};0\n".format(iterator, duration, cuttime))
-                iterator = iterator+1
+            cmsfile.write(mdata)
+
+        if submit:
+            CINEMETRICS_API_ENDPOINT = "http://www.cinemetrics.lv/submit.php"
+            data = {'yname':cine_details['yname'],
+                    'mtitle':cine_details['mtitle'],
+                    'myear':cine_details['myear'],
+                    'email':cine_details['email'],
+                    'comments':'',
+                    'mdata':mdata,
+                    'simple':1,
+                    'numshots':len(shotduration),
+                    'asl':avgshotlength,
+                    'filmlength':totduration }
+
+            r = requests.post(url = CINEMETRICS_API_ENDPOINT, data=data)
+            if r.status_code==200:
+                print("Sumbitted to cinemetrics with status code 200")
+            else:
+                print("Cannot submit to cinemetrics server. Error Code {}".format(r.status_code))
 
     def get_csvframes(self, vidpath, modpath, outdir):
         #Driver function to write csv format with cuts frame index
@@ -228,7 +253,7 @@ class run():
         self.mep_json(outdir, vidpath, filename, shots, length, height, width)
         return outdir
 
-    def get_cinemetrics(self, vidpath, modpath, outdir):
+    def get_cinemetrics(self, vidpath, modpath, outdir, submit, cine_details):
         #Driver function to write cinemetrics formatted output
         filename = vidpath.split('/')[-1].split('.')[0]
         cap = cv2.VideoCapture(vidpath)
@@ -239,7 +264,7 @@ class run():
         cuts = self.sort_cuts(hc, sc)
         outpath = os.path.join(outdir, filename+'.cms')
         shotsduration = self.shot_duration(cuts, length, fps)
-        self.cinemetrics(outpath, cuts, shotsduration, length)
+        self.cinemetrics(outpath, cuts, shotsduration, length, submit=submit, cine_details=cine_details)
         return
 
     def readonly(self, vidpath, modpath):
@@ -247,7 +272,7 @@ class run():
         hc, sc = predict(self.conf, modpath).run(vidpath, True)
         return hc, sc
 
-    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False, iscinemetrics=False):
+    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False, iscinemetrics=False, submit=False, cine_details={}):
         #Driver function 
         if iscsvframe:
             outdir = self.check_dir(iscsvframe=True)
@@ -260,6 +285,6 @@ class run():
             filepath = self.get_mepjson(vidpath, modpath, outdir)
         if iscinemetrics:
             outdir = self.check_dir(iscinemetrics=True)
-            filepath = self.get_cinemetrics(vidpath, modpath, outdir)
+            filepath = self.get_cinemetrics(vidpath, modpath, outdir, submit, cine_details)
         if readonly:
             self.readonly(vidpath, modpath)
