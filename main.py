@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--modpath', default=DEFAULT_MODEL_PATH, help='What is the path of trained 3DCNN model')
     parser.add_argument('--operation', default='read-only', help='What is the output content?(cuts, shots, mepformat, cinemetrics)')
     parser.add_argument('--config', default=DEFAULT_CONFIG_PATH, help='What is the path to configuration file?')
-    parser.add_argument('--cinemetrics_submit', default=False, action="store_true", help='Whether you want to upload the cut detection result to cinemetrics server? (True/False)')
+    parser.add_argument('--cinemetrics_submit', default=False, action="store_true", help='Whether you want to upload the cut detection result to cinemetrics server?')
     parser.add_argument('--yname', default='', help='What is the submitter name?')
     parser.add_argument('--mtitle', default='', help='What is the movie title')
     parser.add_argument('--myear', default='', help='What is the movie year?')

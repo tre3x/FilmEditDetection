@@ -62,6 +62,12 @@ The Media Ecology Project's black and white manually annotated video dataset hig
 - Maria Graziano, Dartmouth College
 - Kevin Chen, Dartmouth College
 - Frandy Rodriguez, Dartmouth College
+
+## Cinemetrics
+Besides providing a feature to generate '.cns' formatted file which works with [cinemetrics](http://www.cinemetrics.lv/), this tool also provides a feature to upload detected cut result directly to the cinemetrics server for further computation. The feature by extending the original implementation as follows: 
+```bash
+python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --config <path/to/config> ----cinemetrics_submit --yname <submitter name> --mtitle <movie_title> --myear <movie_year> --email <submitter_email>
+```
   
 ## Singularity Usage
 To access Singularity image of this tool in the CWRU HPC environment :
