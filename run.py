@@ -12,27 +12,10 @@ class run():
     def __init__(self, conf):
         self.conf = conf
 
-    def check_dir(self, iscsvframe=False, iscsvtime=False, ismepjson=False, iscinemetrics=False):
+    def check_dir(self, outdir):
         #Creates output directory if not present
-        here = os.path.dirname(os.path.abspath(__file__))
-        if iscsvframe:
-            outdir = os.path.join(here, "csv_cuts")
-            if not os.path.isdir(outdir):
-                os.mkdir(outdir)
-        if iscsvtime:
-            outdir = os.path.join(here, "csv_shots")
-            if not os.path.isdir(outdir):
-                os.mkdir(outdir)
-        if ismepjson:
-            outdir = os.path.join(here, "json_mep")
-            if not os.path.isdir(outdir):
-                os.mkdir(outdir)
-        if iscinemetrics:
-            outdir = os.path.join(here, "cinemetrics")
-            if not os.path.isdir(outdir):
-                os.mkdir(outdir)
-
-        return outdir
+        if not os.path.isdir(outdir):
+            os.mkdir(outdir)
 
     def sort_cuts(self, hc, sc):
         #Sort cuts according to timestamps
@@ -272,19 +255,17 @@ class run():
         hc, sc = predict(self.conf, modpath).run(vidpath, True)
         return hc, sc
 
-    def run(self, vidpath, modpath, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False, iscinemetrics=False, submit=False, cine_details={}):
+    def run(self, vidpath, modpath, outdir, iscsvframe=False, iscsvtime=False, ismepjson=False, readonly=False, iscinemetrics=False, submit=False, cine_details={}):
         #Driver function 
-        if iscsvframe:
-            outdir = self.check_dir(iscsvframe=True)
-            filepath = self.get_csvframes(vidpath, modpath, outdir)
-        if iscsvtime:
-            outdir = self.check_dir(iscsvtime=True)
-            filepath = self.get_csvtime(vidpath, modpath, outdir)
-        if ismepjson:
-            outdir = self.check_dir(ismepjson=True)
-            filepath = self.get_mepjson(vidpath, modpath, outdir)
-        if iscinemetrics:
-            outdir = self.check_dir(iscinemetrics=True)
-            filepath = self.get_cinemetrics(vidpath, modpath, outdir, submit, cine_details)
-        if readonly:
+        if not readonly:
+            self.check_dir(outdir)
+            if iscsvframe:
+                filepath = self.get_csvframes(vidpath, modpath, outdir)
+            if iscsvtime:
+                filepath = self.get_csvtime(vidpath, modpath, outdir)
+            if ismepjson:
+                filepath = self.get_mepjson(vidpath, modpath, outdir)
+            if iscinemetrics:
+                filepath = self.get_cinemetrics(vidpath, modpath, outdir, submit, cine_details)
+        else:
             self.readonly(vidpath, modpath)

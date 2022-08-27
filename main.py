@@ -13,6 +13,7 @@ def main():
     parser.add_argument('--vidpath', required = True, help='What is the input video path?')
     parser.add_argument('--modpath', default=DEFAULT_MODEL_PATH, help='What is the path of trained 3DCNN model')
     parser.add_argument('--operation', default='read-only', help='What is the output content?(cuts, shots, mepformat, cinemetrics)')
+    parser.add_argument('--outdir', default='', help='What is the directory of the saved output file?')
     parser.add_argument('--config', default=DEFAULT_CONFIG_PATH, help='What is the path to configuration file?')
     parser.add_argument('--cinemetrics_submit', default=False, action="store_true", help='Whether you want to upload the cut detection result to cinemetrics server?')
     parser.add_argument('--yname', default='', help='What is the submitter name?')
@@ -36,17 +37,25 @@ def main():
     print("----------------------------------------------------------------------")
 
     if args.operation=='cuts':
-        run(conf).run(args.vidpath, args.modpath, iscsvframe=True)
+        if args.outdir=='':
+            args.outdir = os.path.join(here, "csv_cuts")
+        run(conf).run(args.vidpath, args.modpath, args.outdir, iscsvframe=True)
     if args.operation=='shots':
-        run(conf).run(args.vidpath, args.modpath, iscsvtime=True)
+        if args.outdir=='':
+            args.outdir = os.path.join(here, "csv_shots")
+        run(conf).run(args.vidpath, args.modpath, args.outdir, iscsvtime=True)
     if args.operation=='mepformat':
-        run(conf).run(args.vidpath, args.modpath, ismepjson=True)
+        if args.outdir=='':
+            args.outdir = os.path.join(here, "json_mep")
+        run(conf).run(args.vidpath, args.modpath, args.outdir, ismepjson=True)
     if args.operation=='cinemetrics':
+        if args.outdir=='':
+            args.outdir = os.path.join(here, "cinemetrics")
         if args.cinemetrics_submit==True:
             cine_details = {'yname':args.yname, 'mtitle':args.mtitle, 'myear':args.myear,'email':args.email}
-            run(conf).run(args.vidpath, args.modpath, iscinemetrics=True, submit=True, cine_details=cine_details)
+            run(conf).run(args.vidpath, args.modpath, args.outdir, iscinemetrics=True, submit=True, cine_details=cine_details)
         else:
-            run(conf).run(args.vidpath, args.modpath, iscinemetrics=True)
+            run(conf).run(args.vidpath, args.modpath, args.outdir, iscinemetrics=True)
     if args.operation=='read-only':
         run(conf).run(args.vidpath, args.modpath, readonly=True)
 
