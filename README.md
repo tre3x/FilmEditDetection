@@ -41,11 +41,12 @@ Now we have the data, we can train the model by running `data/train.sh`. The tra
 To run the tool on local machine, follow the steps in the **Installation** section.
 After setting up the environment, Run :
 ```bash
-python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --config <path/to/config>
+python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --oudir <path/to/output/directory> --config <path/to/config>
 ```
 - `<path/to/video>` - Path of target video path.
 - `<modpath>` - Path of the model trained/downloaded previously. Default path : `.\trained-models\cutdetection-model`
 - `<result_output_format>` - Output format of the result. Available formats : `cuts` - CSV file containing frame index of cuts, `shots` - CSV file containing timestamps of shots, `mepformat` - JSON format containing timestamps of shots in Media Ecology Project annotation format, `cinemetrics` - a '.cns' formatted file which is supported for uploading to [cinemetrics](http://www.cinemetrics.lv/), `read-only` - to get timestamps of cut frames at the terminal, without writing the data to any file. Default mode : `read-only`
+- `<path/to/output/directory>` - Path to directory where output files will be saved, on the basis of operations performed on the film.
 - `<path/to/config>` - Path to network configuration file. This file (in json format) should contain all information about the networks used in the tool. Few default congigs are stored in the `config` folder. Default path : `.\configs\vgg16.json`
 
   To get help about the syntax format : `python main.py --help`
@@ -66,7 +67,7 @@ The Media Ecology Project's black and white manually annotated video dataset hig
 ## Cinemetrics
 Besides providing a feature to generate '.cns' formatted file which works with [cinemetrics](http://www.cinemetrics.lv/), this tool also provides a feature to upload detected cut result directly to the cinemetrics server for further computation. The feature by extending the original implementation as follows: 
 ```bash
-python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --config <path/to/config> ----cinemetrics_submit --yname <submitter name> --mtitle <movie_title> --myear <movie_year> --email <submitter_email>
+python main.py --vidpath <path/to/video> --modpath <path/to/model> --operation <result_output_format> --config <path/to/config> --config <path/to/config> --cinemetrics_submit --yname <submitter name> --mtitle <movie_title> --myear <movie_year> --email <submitter_email>
 ```
   
 ## Singularity Usage
