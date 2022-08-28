@@ -3,6 +3,33 @@ import argparse
 from run import run
 from utils import load_config
 
+def run_tool(vidpath, modpath, operation, outdir, config, cinemetrics_submit, yname, mtitle, myear, email):
+    here = os.path.dirname(os.path.abspath(__file__))
+    conf = load_config(config)
+    if operation=='cuts':
+        if outdir=='':
+            outdir = os.path.join(here, "csv_cuts")
+        run(conf).run(vidpath, modpath, outdir, iscsvframe=True)
+    if operation=='shots':
+        if outdir=='':
+            outdir = os.path.join(here, "csv_shots")
+        run(conf).run(vidpath, modpath, outdir, iscsvtime=True)
+    if operation=='mepformat':
+        if outdir=='':
+            outdir = os.path.join(here, "json_mep")
+        run(conf).run(vidpath, modpath, outdir, ismepjson=True)
+    if operation=='cinemetrics':
+        if outdir=='':
+            outdir = os.path.join(here, "cinemetrics")
+        if cinemetrics_submit==True:
+            cine_details = {'yname':yname, 'mtitle':mtitle, 'myear':myear,'email':email}
+            run(conf).run(vidpath, modpath, outdir, iscinemetrics=True, submit=True, cine_details=cine_details)
+        else:
+            run(conf).run(vidpath, modpath, outdir, iscinemetrics=True)
+    if operation=='read-only':
+        run(conf).run(vidpath, modpath, readonly=True)
+
+
 def main():
     here = os.path.dirname(os.path.abspath(__file__))
     DEFAULT_MODEL_PATH = os.path.join(here, "trained-models", "cutdetection-model")
@@ -22,7 +49,6 @@ def main():
     parser.add_argument('--email', default='', help='What is the submitter email?')
 
     args = parser.parse_args()
-    conf = load_config(args.config)
 
     assert os.path.isfile(args.vidpath), "No video file found!!"
     assert os.path.isdir(args.modpath), "No trained model found!!"
@@ -35,29 +61,6 @@ def main():
     print("Operation : {}".format(args.operation))
     print("Network Config path : {}".format(args.config))
     print("----------------------------------------------------------------------")
-
-    if args.operation=='cuts':
-        if args.outdir=='':
-            args.outdir = os.path.join(here, "csv_cuts")
-        run(conf).run(args.vidpath, args.modpath, args.outdir, iscsvframe=True)
-    if args.operation=='shots':
-        if args.outdir=='':
-            args.outdir = os.path.join(here, "csv_shots")
-        run(conf).run(args.vidpath, args.modpath, args.outdir, iscsvtime=True)
-    if args.operation=='mepformat':
-        if args.outdir=='':
-            args.outdir = os.path.join(here, "json_mep")
-        run(conf).run(args.vidpath, args.modpath, args.outdir, ismepjson=True)
-    if args.operation=='cinemetrics':
-        if args.outdir=='':
-            args.outdir = os.path.join(here, "cinemetrics")
-        if args.cinemetrics_submit==True:
-            cine_details = {'yname':args.yname, 'mtitle':args.mtitle, 'myear':args.myear,'email':args.email}
-            run(conf).run(args.vidpath, args.modpath, args.outdir, iscinemetrics=True, submit=True, cine_details=cine_details)
-        else:
-            run(conf).run(args.vidpath, args.modpath, args.outdir, iscinemetrics=True)
-    if args.operation=='read-only':
-        run(conf).run(args.vidpath, args.modpath, readonly=True)
 
 
 if __name__=='__main__':
