@@ -159,10 +159,11 @@ class run():
         shotlist = []
         for shot in shotduration:
             totduration = totduration + shot
-        avgshotlength = totduration/len(shotduration)
+        totduration = 10*totduration                    
+        avgshotlength = 10*(totduration/len(shotduration))
 
         for duration, cuttime in zip(shotduration, cuttimestamp):
-            shotlist.append("{};{:.2f};{:.2f};0".format(iterator, duration, cuttime))
+            shotlist.append("{};{:.2f};{:.2f};0".format(iterator, 10*duration, 10*cuttime))
             iterator = iterator+1  
         mdata = '\n'.join(shotlist)
 
