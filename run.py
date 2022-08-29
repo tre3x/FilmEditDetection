@@ -134,17 +134,27 @@ class run():
                 'creator': {'type': 'Agent', 'nickname': 'FilmEditDetector'}, 
                 'created': st, 
                 'rights': 'http://creativecommons.org/licenses/by/4.0/', 
-                'target': {
-                    'source': vidpath, 
-                    'type': 'SpecificResource', 
-                    'selector': 
+                'body': [
                     {
-                        'type': 'FragmentSelector', 
-                        'conformsTo': 'http://www.w3.org/TR/media-frags/', 
-                        'value': "t={},{}".format(shot[0], shot[1])
+                        "type": "TextualBody",
+                        "value": "{}, Scene{}".format(filename, count),
+                        "format": "text/plain",
+                        "language": "en",
+                        "purpose": "describing"
+                    }
+                ],
+                'target': {
+                    'id': vidpath, 
+                    'type': 'SpecificResource', 
+                    'selector': [
+                        {
+                            'type': 'FragmentSelector', 
+                            'conformsTo': 'http://www.w3.org/TR/media-frags/', 
+                            'value': "t={},{}".format(shot[0], shot[1])
                         }
+                    ]
                     }
-                    }
+                }
 
                 items.append(item)
                 count=count+1
