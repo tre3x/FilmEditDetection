@@ -6,7 +6,7 @@ import time
 import requests
 import datetime
 import argparse
-from cutdetector import predict
+from . import predict
 
 class run():
     def __init__(self, conf):

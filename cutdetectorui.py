@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from functools import partial
-from main import run_tool
+from cutdetectioncore.main import run_tool
 
 
 os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")
@@ -11,12 +11,13 @@ os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('NPN Tape Analyzer')
+        self.setWindowTitle('Cut Detection Tool')
+        self.setStyleSheet("background-color: #664080;")
         self.setGeometry(100, 100, 600, 550)
         self.here = os.path.dirname(os.path.abspath(__file__))
         DEFAULT_OUTDIR = os.path.join(self.here, "json_mep")
-        DEFAULT_CONFIG_PATH = os.path.join(self.here, "configs", "vgg16.json")
-        DEFAULT_MODEL_PATH = os.path.join(self.here, "trained-models", "cutdetection-model")
+        DEFAULT_CONFIG_PATH = os.path.join(self.here, "cutdetectioncore", "configs", "vgg16.json")
+        DEFAULT_MODEL_PATH = os.path.join(self.here, "cutdetectioncore", "trained-models",  "cutdetection-model")
         self.datadict = {'filmpath':"<No File>", 'modelpath':"<No File>", 'outputformat':2, 'cinemetrics-server-upload':False, "outdir":DEFAULT_OUTDIR,
                         "config":DEFAULT_CONFIG_PATH, "submitter-name":"", "movie-title":"", "movie-year":"", "submitter-email":""}
         if os.path.exists(DEFAULT_MODEL_PATH):
@@ -24,7 +25,7 @@ class MainWindow(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.lbl = QLabel('Cut Detector Tool', self)
+        self.lbl = QLabel('Cut Detector', self)
         self.lbl.setGeometry(20, 10, 231, 31)
         self.lbl.setFont(QFont("MS Shell Dlg 2", 16, QFont.Bold))
 
@@ -35,7 +36,7 @@ class MainWindow(QWidget):
         self.filmpath = QLineEdit(self)
         self.filmpath.setGeometry(130, 60, 400, 20)
         self.filmpath.setText(self.datadict['filmpath'])
-        self.filmpath.setStyleSheet("color: rgb(128, 128, 128);")
+        self.filmpath.setStyleSheet("color: rgb(180, 180, 180);")
         self.filmpath.setReadOnly(True)
 
         self.filmpathbtn = QPushButton('', self)
@@ -51,7 +52,7 @@ class MainWindow(QWidget):
         self.configpath = QLineEdit(self)
         self.configpath.setGeometry(130, 100, 400, 20)
         self.configpath.setText(self.datadict["config"])
-        self.configpath.setStyleSheet("color: rgb(128, 128, 128);")
+        self.configpath.setStyleSheet("color: rgb(180, 180, 180);")
         self.configpath.setReadOnly(True)
 
         self.configpathbtn = QPushButton('', self)
@@ -67,7 +68,7 @@ class MainWindow(QWidget):
         self.modelpath = QLineEdit(self)
         self.modelpath.setGeometry(130, 140, 400, 20)
         self.modelpath.setText(self.datadict["modelpath"])
-        self.modelpath.setStyleSheet("color: rgb(128, 128, 128);")
+        self.modelpath.setStyleSheet("color: rgb(180, 180, 180);")
         self.modelpath.setReadOnly(True)
 
         self.modelpathbtn = QPushButton('', self)
@@ -83,7 +84,7 @@ class MainWindow(QWidget):
         self.outdir = QLineEdit(self)
         self.outdir.setGeometry(130, 180, 400, 20)
         self.outdir.setText(self.datadict["outdir"])
-        self.outdir.setStyleSheet("color: rgb(128, 128, 128);")
+        self.outdir.setStyleSheet("color: rgb(180, 180, 180);")
         self.outdir.setReadOnly(True)
 
         self.outdirbtn = QPushButton('', self)
@@ -238,7 +239,5 @@ if __name__ == '__main__':
     sys.exit(app.exec_())
 
 '''
-1. Add default output directory, and default config file to the UI
-2. Add respective changes to API
-3. Add processing and final result UI
+1. Add processing and final result UI
 '''

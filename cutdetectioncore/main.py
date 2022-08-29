@@ -1,7 +1,7 @@
 import os
 import argparse
-from run import run
-from utils import load_config
+from . import run
+from . import load_config
 
 def run_tool(vidpath, modpath, operation, outdir, config, cinemetrics_submit, yname, mtitle, myear, email):
     here = os.path.dirname(os.path.abspath(__file__))

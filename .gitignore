@@ -1,19 +1,23 @@
 **/__pycache__
-data/MEP_data/B_W films
-data/MEP_data/cuts
-data/MEP_data/snips
-data/MEP_data/finaldata
-data/synthetic_data/shots
-data/synthetic_data/videos
-data/synthetic_data/results
-data/synthetic_data/finaldata
-data/synthetic_data/trim_video
+cutdetectioncore/data/MEP_data/B_W films
+cutdetectioncore/data/MEP_data/cuts
+cutdetectioncore/data/MEP_data/snips
+cutdetectioncore/data/MEP_data/finaldata
+cutdetectioncore/data/synthetic_data/shots
+cutdetectioncore/data/synthetic_data/videos
+cutdetectioncore/data/synthetic_data/results
+cutdetectioncore/data/synthetic_data/finaldata
+cutdetectioncore/data/synthetic_data/trim_video
+cutdetectioncore/csv_shots
+cutdetectioncore/csv_cuts
+cutdetectioncore/json_mep
+cutdetectioncore/cinemetrics
 /csv_shots
 /csv_cuts
 /json_mep
 /cinemetrics
-/shreyan_test
-/trained-models
-model/trainedmodel/**
-model/hardcut/data
-model/hardcut/trainedmodel
+cutdetectioncore/shreyan_test
+cutdetectioncore/trained-models
+cutdetectioncore/model/trainedmodel/**
+cutdetectioncore/model/hardcut/data
+cutdetectioncore/model/hardcut/trainedmodel
