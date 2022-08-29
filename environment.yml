@@ -28,6 +28,7 @@ dependencies:
     - cached-property==1.5.2
     - cachetools==5.0.0
     - charset-normalizer==2.0.11
+    - click==7.1.2
     - dill==0.3.4
     - flatbuffers==1.12
     - gast==0.4.0
@@ -52,6 +53,14 @@ dependencies:
     - protobuf==3.19.4
     - pyasn1==0.4.8
     - pyasn1-modules==0.2.8
+    - pyqt5==5.15.4
+    - pyqt5-plugins==5.15.4.2.2
+    - pyqt5-qt5==5.15.2
+    - pyqt5-sip==12.11.0
+    - pyqt5-tools==5.15.4.3.2
+    - python-dotenv==0.20.0
+    - qt5-applications==5.15.2.2.2
+    - qt5-tools==5.15.2.1.2
     - requests==2.27.1
     - requests-oauthlib==1.3.1
     - rsa==4.8
