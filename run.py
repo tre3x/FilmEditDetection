@@ -134,6 +134,15 @@ class run():
                 'creator': {'type': 'Agent', 'nickname': 'FilmEditDetector'}, 
                 'created': st, 
                 'rights': 'http://creativecommons.org/licenses/by/4.0/', 
+                'body': [
+                    {
+                        "type": "TextualBody",
+                        "value": "{}, Scene{}".format(filename, count),
+                        "format": "text/plain",
+                        "language": "en",
+                        "purpose": "describing"
+                    }
+                ],
                 'target': {
                     'source': vidpath, 
                     'type': 'SpecificResource', 
