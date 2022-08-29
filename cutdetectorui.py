@@ -13,8 +13,14 @@ class MainWindow(QWidget):
         super().__init__()
         self.setWindowTitle('NPN Tape Analyzer')
         self.setGeometry(100, 100, 600, 550)
-        self.datadict = {'filmpath':"<No File>", 'modelpath':"<No File>", 'outputformat':2, 'cinemetrics-server-upload':False, 
-                        "submitter-name":"", "movie-title":"", "movie-year":"", "submitter-email":""}
+        self.here = os.path.dirname(os.path.abspath(__file__))
+        DEFAULT_OUTDIR = os.path.join(self.here, "json_mep")
+        DEFAULT_CONFIG_PATH = os.path.join(self.here, "configs", "vgg16.json")
+        DEFAULT_MODEL_PATH = os.path.join(self.here, "trained-models", "cutdetection-model")
+        self.datadict = {'filmpath':"<No File>", 'modelpath':"<No File>", 'outputformat':2, 'cinemetrics-server-upload':False, "outdir":DEFAULT_OUTDIR,
+                        "config":DEFAULT_CONFIG_PATH, "submitter-name":"", "movie-title":"", "movie-year":"", "submitter-email":""}
+        if os.path.exists(DEFAULT_MODEL_PATH):
+            self.datadict['modelpath'] = DEFAULT_MODEL_PATH
         self.initUI()
 
     def initUI(self):
@@ -38,6 +44,22 @@ class MainWindow(QWidget):
         self.filmpathbtn.setIconSize(QSize(24,24))
         self.filmpathbtn.setGeometry(550, 60, 24, 20)
 
+        self.lbl11 = QLabel('Config File Path :',self)
+        self.lbl11.setGeometry(20, 100, 100, 20)
+        self.lbl11.setFont(QFont("MS Shell Dlg 2", 9, QFont.Bold))
+        
+        self.configpath = QLineEdit(self)
+        self.configpath.setGeometry(130, 100, 400, 20)
+        self.configpath.setText(self.datadict["config"])
+        self.configpath.setStyleSheet("color: rgb(128, 128, 128);")
+        self.configpath.setReadOnly(True)
+
+        self.configpathbtn = QPushButton('', self)
+        self.configpathbtn.clicked.connect(partial(self.getfolderpath, self.configpath))
+        self.configpathbtn.setIcon(QIcon('img/index.jpg'))
+        self.configpathbtn.setIconSize(QSize(24,24))
+        self.configpathbtn.setGeometry(550, 100, 24, 20)
+
         self.lbl3 = QLabel('Model Path :',self)
         self.lbl3.setGeometry(20, 140, 100, 20)
         self.lbl3.setFont(QFont("MS Shell Dlg 2", 9, QFont.Bold))
@@ -53,6 +75,22 @@ class MainWindow(QWidget):
         self.modelpathbtn.setIcon(QIcon('img/index.jpg'))
         self.modelpathbtn.setIconSize(QSize(24,24))
         self.modelpathbtn.setGeometry(550, 140, 24, 20)
+
+        self.lbl10 = QLabel('Output File Path :',self)
+        self.lbl10.setGeometry(20, 180, 100, 20)
+        self.lbl10.setFont(QFont("MS Shell Dlg 2", 9, QFont.Bold))
+        
+        self.outdir = QLineEdit(self)
+        self.outdir.setGeometry(130, 180, 400, 20)
+        self.outdir.setText(self.datadict["outdir"])
+        self.outdir.setStyleSheet("color: rgb(128, 128, 128);")
+        self.outdir.setReadOnly(True)
+
+        self.outdirbtn = QPushButton('', self)
+        self.outdirbtn.clicked.connect(partial(self.getfolderpath, self.outdir))
+        self.outdirbtn.setIcon(QIcon('img/index.jpg'))
+        self.outdirbtn.setIconSize(QSize(24,24))
+        self.outdirbtn.setGeometry(550, 180, 24, 20)
 
         self.lbl4 = QLabel('Output Format :',self)
         self.lbl4.setGeometry(20, 220, 100, 20)
@@ -81,7 +119,19 @@ class MainWindow(QWidget):
         self.cinemetrics_upload_combobox.addItems(['No', 'Yes'])
         self.cinemetrics_upload_combobox.setCurrentIndex(self.datadict["cinemetrics-server-upload"])
         self.cinemetrics_upload_combobox.setGeometry(380, 300, 100, 20)
-        if self.cinemetricscombobox.currentIndex() == 3:
+        if self.cinemetricscombobox.currentIndex() == 0:
+            self.datadict["outdir"] = os.path.join(self.here, "csv_cuts")
+            self.outdir.setText(self.datadict["outdir"])
+        if self.cinemetricscombobox.currentIndex() == 1:
+            self.datadict["outdir"] = os.path.join(self.here, "csv_shots")
+            self.outdir.setText(self.datadict["outdir"])
+        if self.cinemetricscombobox.currentIndex() == 2:
+            self.datadict["outdir"] = os.path.join(self.here, "json_mep")
+            self.outdir.setText(self.datadict["outdir"])
+        elif self.cinemetricscombobox.currentIndex() == 3:
+            self.datadict["outdir"] = os.path.join(self.here, "cinemetrics")
+            self.outdir.setText(self.datadict["outdir"])
+
             self.lbl5.show()
             self.cinemetrics_upload_combobox.show()
             self.cinemetrics_upload_combobox.currentTextChanged.connect(self.upload_cinemetrics_info)
@@ -148,12 +198,10 @@ class MainWindow(QWidget):
             field.setText(foldername)
 
     def submit(self):
-        here = os.path.dirname(os.path.abspath(__file__))
-        DEFAULT_CONFIG_PATH = os.path.join(here, "configs", "vgg16.json")
         self.datadict['filmpath'] = self.filmpath.text()
         self.datadict['modelpath'] = self.modelpath.text()
         if self.cinemetricscombobox.currentIndex()==0:
-            self.datadict['outputformat'] = 'csv'
+            self.datadict['outputformat'] = 'cuts'
         elif self.cinemetricscombobox.currentIndex()==1:
             self.datadict['outputformat'] = 'shots'
         elif self.cinemetricscombobox.currentIndex()==2:
@@ -167,7 +215,7 @@ class MainWindow(QWidget):
                 self.datadict['movie-year'] = self.movieyear.text()
                 self.datadict['submitter-email'] = self.submitteremail.text()
         print(self.datadict)
-        run_tool(self.datadict['filmpath'], self.datadict['modelpath'], self.datadict['outputformat'], '', DEFAULT_CONFIG_PATH, self.datadict['cinemetrics-server-upload'],
+        run_tool(self.datadict['filmpath'], self.datadict['modelpath'], self.datadict['outputformat'], self.datadict['outdir'], self.datadict['config'], self.datadict['cinemetrics-server-upload'],
                      self.datadict['submitter-name'], self.datadict['movie-title'], self.datadict['movie-year'], self.datadict['submitter-email'])
 
     def closeEvent(self, event):
