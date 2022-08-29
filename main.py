@@ -61,7 +61,7 @@ def main():
     print("Operation : {}".format(args.operation))
     print("Network Config path : {}".format(args.config))
     print("----------------------------------------------------------------------")
-
+    run_tool(args.vidpath, args.modpath, args.operation, args.outdir, args.config, args.cinemetrics_submit, args.yname, args.mtitle, args.myear, args.email)
 
 if __name__=='__main__':
     main()
