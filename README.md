@@ -17,7 +17,8 @@ You need Python 3.x and Conda package manager to run this tool
 ### Installation
 For installing this tool with pretrained model, follow the steps below :
 1. Clone this repository `git clone https://github.com/tre3x/FilmEditDetection.git`
-2. Install the neccessary dependencies by executing `conda env create -f environment.yml`
+2. Switch to `cutdetector-CLI` branch `git checkout cutdetector-cli`
+3. Install the neccessary dependencies by executing `conda env create -f environment.yml`
 
 ### Dataset Description
 Two datasets were used in training the validation/softcut-detection module.
