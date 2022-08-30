@@ -4,6 +4,8 @@
 
 ## About
 ![Alt Text](img/tool.gif)
+
+
 This is a GUI tool to detect cuts in films, especially old films with noisy and broken frames. This tool basically takes an input video and stores cuts in various formats - frame index of cuts alongwith type of cut in CSV format, timestamp in seconds of start and end shots in the film, MEP json format containing shots timestamps, and a format which is supported by cinemetrics for further analysis. 
 This tool was produced for Google Summer Code 2021-2022 with RedHenLabs and Media Ecology Project. 
 
