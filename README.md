@@ -31,5 +31,5 @@ To launch the GUI version of the tool, follow the steps in the **Installation** 
 After setting up the environment, Run `python cutdetectorui.py`
 
 ##  Future Works
-- The wool window freezes while there is an ongoing computation. This can be fixed by running the interface and the background process at different threads.
+- The home window freezes while there is an ongoing computation. This can be fixed by running the interface and the background process at different threads.
 - Implementation of progress bar of the process in the interface.
