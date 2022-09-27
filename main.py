@@ -14,7 +14,7 @@ def run_tool(vidpath, modpath, operation, outdir, config, cinemetrics_submit, yn
         if outdir=='':
             outdir = os.path.join(here, "csv_shots")
         run(conf).run(vidpath, modpath, outdir, iscsvtime=True)
-    if operation=='mepformat':
+    if operation=='mepjson':
         if outdir=='':
             outdir = os.path.join(here, "json_mep")
         run(conf).run(vidpath, modpath, outdir, ismepjson=True)
